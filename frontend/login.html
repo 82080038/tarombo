@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk - Tarombo Digital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-logo h2 {
+            color: #333;
+            font-weight: bold;
+        }
+        .dev-badge {
+            background: #ffc107;
+            color: #000;
+            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .quick-login-btn {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <h2>🌳 Tarombo Digital</h2>
+                <p class="text-muted mb-0">Masuk ke sistem silsilah keluarga Batak</p>
+            </div>
+
+            <!-- Quick Login (Dev Only) -->
+            <div id="devSection" class="mb-4" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted">Mode Pengembangan</small>
+                    <span class="dev-badge">DEV</span>
+                </div>
+                <div class="card bg-light border-warning">
+                    <div class="card-body py-2">
+                        <p class="card-text small text-muted mb-2">Quick Login — Lewati form untuk testing:</p>
+                        <button class="btn btn-outline-warning btn-sm quick-login-btn w-100" data-role="admin">
+                            🔑 Masuk sebagai Admin
+                        </button>
+                        <button class="btn btn-outline-info btn-sm quick-login-btn w-100" data-role="user">
+                            👤 Masuk sebagai User
+                        </button>
+                    </div>
+                </div>
+                <hr>
+            </div>
+
+            <form id="loginForm">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" required
+                        placeholder="nama@email.com" value="admin@tarombo.digital">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" required
+                        placeholder="Password" value="password">
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                    Masuk
+                </button>
+                <div class="text-center">
+                    <span class="text-muted">Belum punya akun?</span>
+                    <a href="register.html" class="text-decoration-none">Daftar</a>
+                </div>
+            </form>
+
+            <div id="loginError" class="alert alert-danger mt-3" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Show dev section if in development
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            document.getElementById('devSection').style.display = 'block';
+        }
+
+        // Quick login buttons
+        document.querySelectorAll('.quick-login-btn').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const role = this.dataset.role;
+                this.disabled = true;
+                this.textContent = 'Memuat...';
+                
+                const result = await API.quickLogin(role);
+                if (result.success) {
+                    window.location.href = 'index.html';
+                } else {
+                    const err = document.getElementById('loginError');
+                    err.textContent = result.error?.message || 'Quick login gagal';
+                    err.style.display = 'block';
+                    this.disabled = false;
+                    this.textContent = role === 'admin' ? '🔑 Masuk sebagai Admin' : '👤 Masuk sebagai User';
+                }
+            });
+        });
+
+        // Normal login
+        document.getElementById('loginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Memuat...';
+            errorDiv.style.display = 'none';
+
+            const result = await API.login(email, password);
+
+            if (result.success) {
+                window.location.href = 'index.html';
+            } else {
+                errorDiv.textContent = result.error?.message || 'Login gagal';
+                errorDiv.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Masuk';
+            }
+        });
+    </script>
+</body>
+
+</html>

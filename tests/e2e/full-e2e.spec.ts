@@ -294,3 +294,77 @@ test.describe('Console & Network Check', () => {
     }
   })
 })
+
+test.describe('Authentication', () => {
+  test('login page loads with quick login dev buttons', async ({ page }) => {
+    await page.goto('login.html')
+    await expect(page.locator('h2')).toContainText('Tarombo Digital')
+    await expect(page.locator('#loginForm')).toBeVisible()
+    await expect(page.locator('button[type="submit"]')).toContainText('Masuk')
+
+    // Quick login should be visible on localhost
+    const devSection = page.locator('#devSection')
+    if (await devSection.isVisible().catch(() => false)) {
+      await expect(page.locator('button[data-role="admin"]')).toBeVisible()
+      await expect(page.locator('button[data-role="user"]')).toBeVisible()
+    }
+  })
+
+  test('quick login works and redirects to homepage', async ({ page }) => {
+    await page.goto('login.html')
+    const devSection = page.locator('#devSection')
+    if (await devSection.isVisible().catch(() => false)) {
+      await page.click('button[data-role="admin"]')
+      await expect(page).toHaveURL(/index\.html/)
+      // Navbar should show user dropdown
+      await expect(page.locator('#authNavItem')).toContainText('Administrator')
+    } else {
+      test.skip(true, 'Quick login not available in this environment')
+    }
+  })
+
+  test('register page loads', async ({ page }) => {
+    await page.goto('register.html')
+    await expect(page.locator('h2')).toContainText('Tarombo Digital')
+    await expect(page.locator('#registerForm')).toBeVisible()
+  })
+
+  test('me endpoint returns user with valid token', async ({ request }) => {
+    const loginResponse = await request.post('api/v1/auth/login', {
+      data: { email: 'admin@tarombo.digital', password: 'password' }
+    })
+    const loginBody = await loginResponse.json()
+    expect(loginBody.success).toBe(true)
+    expect(loginBody.data.access_token).toBeDefined()
+
+    const meResponse = await request.get('api/v1/auth/me', {
+      headers: { Authorization: `Bearer ${loginBody.data.access_token}` }
+    })
+    expect(meResponse.status()).toBe(200)
+    const meBody = await meResponse.json()
+    expect(meBody.success).toBe(true)
+    expect(meBody.data.email).toBe('admin@tarombo.digital')
+    expect(meBody.data.role).toBe('admin')
+  })
+
+  test('login with wrong password returns 401', async ({ request }) => {
+    const response = await request.post('api/v1/auth/login', {
+      data: { email: 'admin@tarombo.digital', password: 'wrongpassword' }
+    })
+    expect(response.status()).toBe(401)
+    const body = await response.json()
+    expect(body.success).toBe(false)
+    expect(body.error.code).toBe('INVALID_CREDENTIALS')
+  })
+
+  test('quick-login endpoint returns token', async ({ request }) => {
+    const response = await request.post('api/v1/auth/quick-login', {
+      data: { role: 'admin' }
+    })
+    expect(response.status()).toBe(200)
+    const body = await response.json()
+    expect(body.success).toBe(true)
+    expect(body.data.access_token).toBeDefined()
+    expect(body.data.quick_login).toBe(true)
+  })
+})

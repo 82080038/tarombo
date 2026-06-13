@@ -16,9 +16,19 @@ if (strpos($relative, 'api/') === 0) {
         $url .= '?' . $_SERVER['QUERY_STRING'];
     }
 
+    $headerLines = [];
+    if (isset($_SERVER['CONTENT_TYPE'])) {
+        $headerLines[] = 'Content-Type: ' . $_SERVER['CONTENT_TYPE'];
+    }
+    if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+        $headerLines[] = 'Authorization: ' . $_SERVER['HTTP_AUTHORIZATION'];
+    }
+    $headerStr = implode("\r\n", $headerLines);
+
     $opts = [
         'http' => [
             'method'  => $_SERVER['REQUEST_METHOD'],
+            'header'  => $headerStr,
             'ignore_errors' => true,
         ]
     ];

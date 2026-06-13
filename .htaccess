@@ -1,6 +1,10 @@
 RewriteEngine On
 RewriteBase /tarombo/
 
+# Pass Authorization header to PHP (required for JWT Bearer tokens)
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
+
 # Rewrite everything to index.php router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

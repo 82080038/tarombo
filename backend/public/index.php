@@ -7,6 +7,7 @@
 use Slim\Factory\AppFactory;
 use App\Controllers\PersonController;
 use App\Controllers\MargaController;
+use App\Controllers\AuthController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CorsMiddleware;
 
@@ -37,6 +38,15 @@ $app->get('/', function ($request, $response) {
         'version' => '1.0.0'
     ]));
     return $response->withHeader('Content-Type', 'application/json');
+});
+
+// API Routes - Auth
+$app->group('/api/v1/auth', function ($group) {
+    $group->post('/login', [AuthController::class, 'login']);
+    $group->post('/register', [AuthController::class, 'register']);
+    $group->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
+    $group->get('/me', [AuthController::class, 'me'])->add(AuthMiddleware::class);
+    $group->post('/quick-login', [AuthController::class, 'quickLogin']);
 });
 
 // API Routes - Persons
