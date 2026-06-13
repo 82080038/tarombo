@@ -22,6 +22,20 @@ CREATE TABLE marga (
     INDEX idx_parent (parent_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Marga Hierarchy table (Closure Table Pattern)
+-- This table stores all ancestor-descendant relationships for efficient hierarchy queries
+CREATE TABLE marga_hierarchy (
+    ancestor_id INT NOT NULL COMMENT 'ID marga induk (ancestor)',
+    descendant_id INT NOT NULL COMMENT 'ID marga turunan (descendant)',
+    depth INT NOT NULL DEFAULT 0 COMMENT 'Jarak hierarki (0 = self)',
+    PRIMARY KEY (ancestor_id, descendant_id),
+    FOREIGN KEY (ancestor_id) REFERENCES marga(id) ON DELETE CASCADE,
+    FOREIGN KEY (descendant_id) REFERENCES marga(id) ON DELETE CASCADE,
+    INDEX idx_ancestor (ancestor_id),
+    INDEX idx_descendant (descendant_id),
+    INDEX idx_depth (depth)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Persons table
 CREATE TABLE persons (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -273,6 +287,30 @@ INSERT INTO marga (nama, sub_suku, deskripsi, asal_usul, parent_id) VALUES
 ('Berutu', 'Pakpak', 'Marga Pakpak', 'Pakpak', NULL),
 ('Solin', 'Pakpak', 'Marga Pakpak', 'Pakpak', NULL),
 ('Maibang', 'Pakpak', 'Marga Pakpak', 'Pakpak', NULL);
+
+-- Populate marga_hierarchy table (Closure Table Pattern)
+-- Insert self-references (depth = 0)
+INSERT INTO marga_hierarchy (ancestor_id, descendant_id, depth)
+SELECT id, id, 0 FROM marga;
+
+-- Insert direct parent-child relationships (depth = 1)
+INSERT INTO marga_hierarchy (ancestor_id, descendant_id, depth)
+SELECT parent_id, id, 1 FROM marga WHERE parent_id IS NOT NULL;
+
+-- Insert deeper relationships recursively
+-- This will populate all ancestor-descendant relationships
+INSERT INTO marga_hierarchy (ancestor_id, descendant_id, depth)
+SELECT 
+    p.ancestor_id,
+    c.descendant_id,
+    p.depth + c.depth AS depth
+FROM marga_hierarchy AS p
+JOIN marga_hierarchy AS c ON p.descendant_id = c.ancestor_id
+WHERE c.depth > 0
+AND NOT EXISTS (
+    SELECT 1 FROM marga_hierarchy AS h 
+    WHERE h.ancestor_id = p.ancestor_id AND h.descendant_id = c.descendant_id
+);
 
 -- Insert sample Persons (family tree)
 INSERT INTO persons (nama, marga_id, jenis_kelamin, tanggal_lahir, tempat_lahir) VALUES
