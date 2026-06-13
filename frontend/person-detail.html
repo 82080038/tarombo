@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tarombo Digital - Sistem Silsilah Keluarga Batak</title>
+    <title>Person Detail - Tarombo Digital</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -17,7 +17,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link active" href="index.html">Beranda</a>
+                        <a class="nav-link" href="index.html">Beranda</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="persons.html">Persons</a>
@@ -36,41 +36,16 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col-12">
-                <div class="jumbotron bg-light p-5 rounded">
-                    <h1 class="display-4">Selamat Datang di Tarombo Digital</h1>
-                    <p class="lead">Sistem silsilah keluarga Batak yang modern dan terintegrasi</p>
-                    <hr class="my-4">
-                    <p>Dokumentasikan silsilah keluarga Anda dengan mudah dan akurat sesuai adat Batak</p>
-                    <a class="btn btn-primary btn-lg" href="persons.html" role="button">Mulai Sekarang</a>
-                </div>
+                <a href="persons.html" class="btn btn-secondary mb-3">&larr; Kembali</a>
+                <h1>Detail Person</h1>
             </div>
         </div>
 
-        <div class="row mt-5">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">👥 Kelola Person</h5>
-                        <p class="card-text">Tambah, edit, dan hapus data keluarga dengan mudah</p>
-                        <a href="persons.html" class="btn btn-outline-primary">Lihat Persons</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">🌳 Family Tree</h5>
-                        <p class="card-text">Visualisasi silsilah keluarga dalam bentuk pohon</p>
-                        <a href="family-tree.html" class="btn btn-outline-primary">Lihat Tree</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">📊 Partuturan</h5>
-                        <p class="card-text">Hitung hubungan kekerabatan sesuai adat Batak</p>
-                        <a href="partuturan.html" class="btn btn-outline-primary">Hitung Partuturan</a>
+        <div class="row" id="personDetail">
+            <div class="col-12">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
                 </div>
             </div>
@@ -86,6 +61,6 @@
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/person-detail.js"></script>
 </body>
 </html>
