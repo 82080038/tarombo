@@ -20,15 +20,15 @@ tarombo/
 │   ├── config/
 │   ├── public/       # Entry point (index.php)
 │   └── composer.json
-├── frontend/          # React + TypeScript + Vite
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── hooks/
-│   ├── package.json
-│   └── vite.config.ts
+├── frontend/          # HTML + Bootstrap + jQuery
+│   ├── css/          # Custom CSS
+│   ├── js/           # JavaScript files
+│   ├── index.html    # Homepage
+│   ├── persons.html  # Persons list
+│   ├── person-detail.html
+│   ├── family-tree.html
+│   └── partuturan.html
 ├── database/          # SQL migrations & seeds
-├── docker/            # Docker configuration
 ├── tests/             # Playwright E2E tests
 └── docs/              # 18 dokumentasi lengkap
 ```
@@ -39,9 +39,8 @@ tarombo/
 
 ### Prerequisites
 - PHP 8.1+ with Composer
-- Node.js 18+ with npm
+- Python 3+ (for static file server)
 - MySQL 8.0+
-- Docker & Docker Compose (optional)
 
 ### 1. Setup Environment
 
@@ -68,28 +67,15 @@ php -S localhost:8000 -t public/
 **Frontend:**
 ```bash
 cd frontend
-npm install
-npm run dev
+python3 -m http.server 8080
+# Atau gunakan web server lain (Apache, Nginx, dll)
 ```
 
 **Database:**
 ```bash
 # Using MySQL
-mysql -u root -p < database/schema.sql
-mysql -u root -p < database/seeds.sql
+mysql -u root -p < database/init.sql
 ```
-
-### 3. Docker Setup (Recommended)
-
-```bash
-docker-compose up -d
-```
-
-Services:
-- Backend API: http://localhost:8000
-- Frontend Dev: http://localhost:3000
-- MySQL: localhost:3306
-- phpMyAdmin: http://localhost:8080
 
 ---
 
@@ -180,11 +166,10 @@ GET /api/v1/partuturan/calculate?from={id}&to={id}
 - **Neo4j** untuk graph relationships (optional)
 
 ### Frontend
-- **React 18** dengan TypeScript
-- **Vite** untuk build tool
-- **TailwindCSS** untuk styling
-- **D3.js** untuk family tree visualization
-- **React Query** untuk data fetching
+- **HTML 5** untuk struktur
+- **Bootstrap 5.3** untuk styling
+- **jQuery 3.7.0** untuk DOM manipulation dan AJAX
+- **D3.js** untuk family tree visualization (optional)
 
 ### Testing
 - **Playwright** untuk E2E testing
