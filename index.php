@@ -59,15 +59,22 @@ if (strpos($relative, 'api/') === 0) {
     exit;
 }
 
-// Frontend files
-$frontendFile = __DIR__ . '/frontend/' . $relative;
+// Frontend files — prefer .php over .html
 if (empty($relative)) {
-    $relative = 'index.html';
-    $frontendFile = __DIR__ . '/frontend/index.html';
+    $relative = 'index';
 }
 
-if (file_exists($frontendFile) && is_file($frontendFile)) {
-    $ext = pathinfo($frontendFile, PATHINFO_EXTENSION);
+$phpFile = __DIR__ . '/frontend/' . $relative . '.php';
+$htmlFile = __DIR__ . '/frontend/' . $relative . '.html';
+
+if (file_exists($phpFile) && is_file($phpFile)) {
+    // Execute PHP so includes work
+    require $phpFile;
+    exit;
+}
+
+if (file_exists($htmlFile) && is_file($htmlFile)) {
+    $ext = pathinfo($htmlFile, PATHINFO_EXTENSION);
     $mimeTypes = [
         'html' => 'text/html',
         'css'  => 'text/css',
@@ -83,15 +90,43 @@ if (file_exists($frontendFile) && is_file($frontendFile)) {
     if (isset($mimeTypes[$ext])) {
         header('Content-Type: ' . $mimeTypes[$ext]);
     }
-    readfile($frontendFile);
+    readfile($htmlFile);
+    exit;
+}
+
+// Static assets (js, css, images)
+$staticFile = __DIR__ . '/frontend/' . $relative;
+if (file_exists($staticFile) && is_file($staticFile)) {
+    $ext = pathinfo($staticFile, PATHINFO_EXTENSION);
+    $mimeTypes = [
+        'html' => 'text/html',
+        'css'  => 'text/css',
+        'js'   => 'application/javascript',
+        'json' => 'application/json',
+        'png'  => 'image/png',
+        'jpg'  => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif'  => 'image/gif',
+        'svg'  => 'image/svg+xml',
+        'ico'  => 'image/x-icon',
+    ];
+    if (isset($mimeTypes[$ext])) {
+        header('Content-Type: ' . $mimeTypes[$ext]);
+    }
+    readfile($staticFile);
     exit;
 }
 
 // SPA fallback
-$indexFile = __DIR__ . '/frontend/index.html';
-if (file_exists($indexFile)) {
+$indexPhp = __DIR__ . '/frontend/index.php';
+$indexHtml = __DIR__ . '/frontend/index.html';
+if (file_exists($indexPhp)) {
+    require $indexPhp;
+    exit;
+}
+if (file_exists($indexHtml)) {
     header('Content-Type: text/html');
-    readfile($indexFile);
+    readfile($indexHtml);
     exit;
 }
 
