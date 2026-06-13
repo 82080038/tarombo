@@ -5,7 +5,11 @@ RewriteBase /tarombo/
 RewriteCond %{HTTP:Authorization} ^(.*)
 RewriteRule .* - [e=HTTP_AUTHORIZATION:%1]
 
-# Rewrite everything to index.php router
+# Route .php files through index.php router (so includes work properly)
+RewriteCond %{REQUEST_URI} \.php$
+RewriteRule ^(.*)$ index.php [L,QSA]
+
+# Route non-existent files/directories to index.php router (for clean URLs)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [L,QSA]

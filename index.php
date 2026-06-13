@@ -64,34 +64,62 @@ if (empty($relative)) {
     $relative = 'index';
 }
 
-$phpFile = __DIR__ . '/frontend/' . $relative . '.php';
-$htmlFile = __DIR__ . '/frontend/' . $relative . '.html';
-
-if (file_exists($phpFile) && is_file($phpFile)) {
-    // Execute PHP so includes work
-    require $phpFile;
-    exit;
-}
-
-if (file_exists($htmlFile) && is_file($htmlFile)) {
-    $ext = pathinfo($htmlFile, PATHINFO_EXTENSION);
-    $mimeTypes = [
-        'html' => 'text/html',
-        'css'  => 'text/css',
-        'js'   => 'application/javascript',
-        'json' => 'application/json',
-        'png'  => 'image/png',
-        'jpg'  => 'image/jpeg',
-        'jpeg' => 'image/jpeg',
-        'gif'  => 'image/gif',
-        'svg'  => 'image/svg+xml',
-        'ico'  => 'image/x-icon',
-    ];
-    if (isset($mimeTypes[$ext])) {
-        header('Content-Type: ' . $mimeTypes[$ext]);
+// If relative already has extension, use it as-is; otherwise try .php then .html
+$ext = pathinfo($relative, PATHINFO_EXTENSION);
+if ($ext) {
+    $frontendFile = __DIR__ . '/frontend/' . $relative;
+    if (file_exists($frontendFile) && is_file($frontendFile)) {
+        if ($ext === 'php') {
+            require $frontendFile;
+        } else {
+            $mimeTypes = [
+                'html' => 'text/html',
+                'css'  => 'text/css',
+                'js'   => 'application/javascript',
+                'json' => 'application/json',
+                'png'  => 'image/png',
+                'jpg'  => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'gif'  => 'image/gif',
+                'svg'  => 'image/svg+xml',
+                'ico'  => 'image/x-icon',
+            ];
+            if (isset($mimeTypes[$ext])) {
+                header('Content-Type: ' . $mimeTypes[$ext]);
+            }
+            readfile($frontendFile);
+        }
+        exit;
     }
-    readfile($htmlFile);
-    exit;
+} else {
+    $phpFile = __DIR__ . '/frontend/' . $relative . '.php';
+    $htmlFile = __DIR__ . '/frontend/' . $relative . '.html';
+
+    if (file_exists($phpFile) && is_file($phpFile)) {
+        require $phpFile;
+        exit;
+    }
+
+    if (file_exists($htmlFile) && is_file($htmlFile)) {
+        $mimeTypes = [
+            'html' => 'text/html',
+            'css'  => 'text/css',
+            'js'   => 'application/javascript',
+            'json' => 'application/json',
+            'png'  => 'image/png',
+            'jpg'  => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'gif'  => 'image/gif',
+            'svg'  => 'image/svg+xml',
+            'ico'  => 'image/x-icon',
+        ];
+        $fext = pathinfo($htmlFile, PATHINFO_EXTENSION);
+        if (isset($mimeTypes[$fext])) {
+            header('Content-Type: ' . $mimeTypes[$fext]);
+        }
+        readfile($htmlFile);
+        exit;
+    }
 }
 
 // Static assets (js, css, images)
