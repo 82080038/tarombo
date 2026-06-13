@@ -10,6 +10,10 @@ use App\Controllers\MargaController;
 use App\Controllers\AuthController;
 use App\Controllers\MarriageController;
 use App\Controllers\CeremonyController;
+use App\Controllers\PunguanController;
+use App\Controllers\DocumentController;
+use App\Controllers\MakamController;
+use App\Controllers\GeoController;
 use App\Controllers\AdminController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CorsMiddleware;
@@ -95,6 +99,35 @@ $app->group('/api/v1/ceremonies', function ($group) {
     $group->post('', [CeremonyController::class, 'store'])->add(AuthMiddleware::class);
     $group->get('/{id}', [CeremonyController::class, 'show']);
     $group->put('/{id}', [CeremonyController::class, 'update'])->add(AuthMiddleware::class);
+});
+
+// Punguan routes
+$app->group('/api/v1/punguan', function ($group) {
+    $group->get('', [PunguanController::class, 'index']);
+    $group->get('/{id}', [PunguanController::class, 'show']);
+    $group->get('/{id}/members', [PunguanController::class, 'members']);
+    $group->post('', [PunguanController::class, 'store'])->add(AuthMiddleware::class);
+});
+
+// Document routes
+$app->group('/api/v1/documents', function ($group) {
+    $group->get('', [DocumentController::class, 'index']);
+    $group->get('/{id}', [DocumentController::class, 'show']);
+    $group->post('', [DocumentController::class, 'store'])->add(AuthMiddleware::class);
+});
+
+// Makam routes
+$app->group('/api/v1/makam', function ($group) {
+    $group->get('', [MakamController::class, 'index']);
+    $group->get('/{id}', [MakamController::class, 'show']);
+    $group->post('', [MakamController::class, 'store'])->add(AuthMiddleware::class);
+});
+
+// Geo / Map routes
+$app->group('/api/v1/geo', function ($group) {
+    $group->get('/persons', [GeoController::class, 'personLocations']);
+    $group->get('/makam', [GeoController::class, 'makamLocations']);
+    $group->get('/statistics', [GeoController::class, 'statistics']);
 });
 
 // Run app

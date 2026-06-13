@@ -414,3 +414,39 @@ test.describe('AI Assistant Page', () => {
     expect(chat).toContain('Dalihan Na Tolu')
   })
 })
+
+test.describe('Punguan Page', () => {
+  test('loads punguan data', async ({ page }) => {
+    await page.goto('punguan.html')
+    await expect(page.locator('h2')).toContainText('Punguan')
+    await page.waitForFunction(() => {
+      const el = document.getElementById('punguanList')
+      return el && !el.textContent?.includes('Memuat')
+    }, { timeout: 10000 })
+    const text = await page.locator('#punguanList').textContent()
+    expect(text).toContain('Punguan')
+  })
+})
+
+test.describe('Documents Page', () => {
+  test('loads documents page', async ({ page }) => {
+    await page.goto('documents.html')
+    await expect(page.locator('h2')).toContainText('Dokumen')
+  })
+})
+
+test.describe('Makam Page', () => {
+  test('loads makam page with map', async ({ page }) => {
+    await page.goto('makam.html')
+    await expect(page.locator('h2')).toContainText('Makam')
+    await expect(page.locator('#makamMap')).toBeVisible()
+  })
+})
+
+test.describe('Map Page', () => {
+  test('loads family map page', async ({ page }) => {
+    await page.goto('map.html')
+    await expect(page.locator('h2')).toContainText('Peta Keluarga')
+    await expect(page.locator('#familyMap')).toBeVisible()
+  })
+})

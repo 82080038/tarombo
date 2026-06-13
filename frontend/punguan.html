@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Punguan & Organisasi - Tarombo Digital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .punguan-card {
+            border-left: 4px solid #0d6efd;
+            transition: transform .15s;
+        }
+
+        .punguan-card:hover {
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">🌳 Tarombo Digital</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span
+                    class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="persons.html">Dongan Tubu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="family-tree.html">Pohon Tarombo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="partuturan.html">Partuturan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="marriages.html">Perkawinan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ceremonies.html">Acara Adat</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Lainnya</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="punguan.html">🏛️ Punguan</a></li>
+                            <li><a class="dropdown-item" href="documents.html">📁 Dokumen</a></li>
+                            <li><a class="dropdown-item" href="makam.html">🪦 Makam</a></li>
+                            <li><a class="dropdown-item" href="map.html">🗺️ Peta Keluarga</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="admin.html">📊 Admin</a></li>
+                            <li><a class="dropdown-item" href="assistant.html">🤖 AI Assistant</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>🏛️ Punguan & Organisasi Marga</h2>
+        <p class="text-muted">Organisasi marga Batak — Pengurus, Anggota, dan Iuran</p>
+
+        <div id="punguanList">
+            <p class="text-muted">Memuat...</p>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-3 bg-light text-center">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 Tarombo Digital</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth-nav.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                const response = await fetch(`${API_BASE_URL}/punguan`);
+                const result = await response.json();
+                if (!result.success) { document.getElementById('punguanList').innerHTML = '<p class="text-danger">Gagal memuat</p>'; return; }
+
+                const items = result.data || [];
+                if (!items.length) { document.getElementById('punguanList').innerHTML = '<p class="text-muted">Belum ada punguan</p>'; return; }
+
+                document.getElementById('punguanList').innerHTML = `<div class="row">${items.map(p => `
+                <div class="col-md-6 mb-3">
+                    <div class="card punguan-card">
+                        <div class="card-body">
+                            <h5 class="card-title">${p.nama}</h5>
+                            <p class="mb-1"><span class="badge bg-secondary">${p.marga?.nama || '-'}</span></p>
+                            <p class="mb-1">📍 ${p.alamat || '-'}, ${p.kota || '-'}, ${p.provinsi || '-'}</p>
+                            <p class="mb-1">👤 Ketua: ${p.ketua?.nama || '-'}</p>
+                            <p class="mb-0"><small class="text-muted">${p.deskripsi || ''}</small></p>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+            } catch (e) { document.getElementById('punguanList').innerHTML = '<p class="text-danger">Error memuat data</p>'; }
+        });
+    </script>
+</body>
+
+</html>
