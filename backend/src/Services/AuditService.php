@@ -24,7 +24,7 @@ class AuditService
         // For now, just log to file
         // In production, this should go to database table
         $logEntry = [
-            'timestamp' => now()->toIso8601String(),
+            'timestamp' => date('c'),
             'action' => $action,
             'entity_type' => get_class($entity),
             'entity_id' => $entity->id,

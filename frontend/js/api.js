@@ -97,10 +97,10 @@ const API = {
     // Calculate partuturan
     calculatePartuturan: async function(person1Id, person2Id) {
         try {
-            const response = await fetch(`${API_BASE_URL}/partuturan/calculate?person1_id=${person1Id}&person2_id=${person2Id}`);
+            const response = await fetch(`${API_BASE_URL}/partuturan/calculate?from=${person1Id}&to=${person2Id}`);
             if (!response.ok) throw new Error('Failed to calculate partuturan');
             const data = await response.json();
-            return data.data;
+            return data;
         } catch (error) {
             console.error('Error calculating partuturan:', error);
             return null;

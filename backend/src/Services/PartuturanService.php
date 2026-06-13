@@ -111,18 +111,18 @@ class PartuturanService
             return 'spouse';
         }
         
-        // Grandparents (3 levels)
-        if ($n === 3) {
-            return 'grandparent';
-        }
-        
-        // Siblings (through common parent)
+        // Siblings (through common parent) - check before grandparent
         if ($n === 3) {
             $middle = $path[1];
             if (($middle->id === $from->father_id && $middle->id === $to->father_id) ||
                 ($middle->id === $from->mother_id && $middle->id === $to->mother_id)) {
                 return $to->jenis_kelamin === 'L' ? 'brother' : 'sister';
             }
+        }
+        
+        // Grandparents (3 levels)
+        if ($n === 3) {
+            return 'grandparent';
         }
         
         // Extended family patterns

@@ -128,8 +128,8 @@ class Person extends Model
         }
         
         return $this->mother->siblings()
-            ->where('jenis_kelamin', 'L')
-            ->get()
+            ->filter(fn($s) => $s->jenis_kelamin === 'L')
+            ->values()
             ->toArray();
     }
     
@@ -144,8 +144,8 @@ class Person extends Model
         }
         
         return $this->father->siblings()
-            ->where('jenis_kelamin', 'P')
-            ->get()
+            ->filter(fn($s) => $s->jenis_kelamin === 'P')
+            ->values()
             ->toArray();
     }
     
