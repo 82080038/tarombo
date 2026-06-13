@@ -368,3 +368,49 @@ test.describe('Authentication', () => {
     expect(body.data.quick_login).toBe(true)
   })
 })
+
+test.describe('Marriages Page', () => {
+  test('loads marriage data and displays progress', async ({ page }) => {
+    await page.goto('marriages.html')
+    await expect(page.locator('h2')).toContainText('Perkawinan')
+    // Wait for table to populate
+    await page.waitForFunction(() => {
+      const tbody = document.querySelector('#marriagesTable')
+      return tbody && tbody.children.length > 0 && !tbody.textContent?.includes('Memuat')
+    }, { timeout: 10000 })
+    const rows = await page.locator('#marriagesTable tr').count()
+    expect(rows).toBeGreaterThan(0)
+  })
+})
+
+test.describe('Ceremonies Page', () => {
+  test('loads ceremony page', async ({ page }) => {
+    await page.goto('ceremonies.html')
+    await expect(page.locator('h2')).toContainText('Acara Adat')
+  })
+})
+
+test.describe('Persons Page Filters', () => {
+  test('filter by gender works', async ({ page }) => {
+    await page.goto('persons.html')
+    await page.waitForFunction(() => {
+      const tbody = document.querySelector('#personsTable')
+      return tbody && tbody.children.length > 0 && !tbody.textContent?.includes('Memuat')
+    }, { timeout: 10000 })
+    await page.selectOption('#filterGender', 'L')
+    const text = await page.locator('#personsTable').textContent()
+    expect(text).not.toContain('Perempuan')
+  })
+})
+
+test.describe('AI Assistant Page', () => {
+  test('loads and answers knowledge question', async ({ page }) => {
+    await page.goto('assistant.html')
+    await expect(page.locator('.card-header')).toContainText('AI Tarombo Assistant')
+    // Click suggestion chip
+    await page.click('.suggestion-chip:has-text("Dalihan Na Tolu")')
+    await page.waitForTimeout(500)
+    const chat = await page.locator('#chatBox').textContent()
+    expect(chat).toContain('Dalihan Na Tolu')
+  })
+})

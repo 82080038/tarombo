@@ -1,25 +1,23 @@
 // Persons Page JavaScript
 $(document).ready(function () {
     let allPersons = [];
+    let allMargas = [];
 
-    // Load persons on page load
     loadPersons();
     loadMarga();
 
-    // Search functionality
-    $('#searchInput').on('keyup', function () {
-        const searchTerm = $(this).val().toLowerCase();
-        const filteredPersons = allPersons.filter(person =>
-            person.nama.toLowerCase().includes(searchTerm) ||
-            (person.marga && person.marga.nama.toLowerCase().includes(searchTerm))
-        );
-        renderPersons(filteredPersons);
+    // Filter events
+    $('#searchInput').on('keyup', debounce(applyFilters, 200));
+    $('#filterMarga, #filterSubSuku, #filterGender').on('change', applyFilters);
+    $('#resetFilterBtn').on('click', function () {
+        $('#searchInput').val('');
+        $('#filterMarga').val('');
+        $('#filterSubSuku').val('');
+        $('#filterGender').val('');
+        applyFilters();
     });
 
-    // Save person button
-    $('#savePersonBtn').on('click', function () {
-        savePerson();
-    });
+    $('#savePersonBtn').on('click', function () { savePerson(); });
 
     function loadPersons() {
         API.getPersons().then(function (persons) {
@@ -30,13 +28,50 @@ $(document).ready(function () {
 
     function loadMarga() {
         API.getMarga().then(function (margaList) {
+            allMargas = margaList;
+            // Populate add-person modal select
             const select = $('#margaSelect');
             select.empty();
             select.append('<option value="">Pilih Marga</option>');
             margaList.forEach(function (marga) {
                 select.append(`<option value="${marga.id}">${marga.nama} (${marga.sub_suku})</option>`);
             });
+            // Populate filter dropdowns
+            const margaFilter = $('#filterMarga');
+            margaFilter.empty();
+            margaFilter.append('<option value="">Semua Marga</option>');
+            margaList.forEach(function (m) {
+                margaFilter.append(`<option value="${m.id}">${m.nama}</option>`);
+            });
+
+            // Sub-suku filter (unique)
+            const subSukuSet = [...new Set(margaList.map(m => m.sub_suku))].sort();
+            const subSukuFilter = $('#filterSubSuku');
+            subSukuFilter.empty();
+            subSukuFilter.append('<option value="">Semua Sub-Suku</option>');
+            subSukuSet.forEach(function (s) {
+                subSukuFilter.append(`<option value="${s}">${s}</option>`);
+            });
         });
+    }
+
+    function applyFilters() {
+        const search = $('#searchInput').val().toLowerCase();
+        const margaId = $('#filterMarga').val();
+        const subSuku = $('#filterSubSuku').val();
+        const gender = $('#filterGender').val();
+
+        const filtered = allPersons.filter(person => {
+            const matchSearch = !search ||
+                person.nama.toLowerCase().includes(search) ||
+                (person.marga && person.marga.nama.toLowerCase().includes(search));
+            const matchMarga = !margaId || (person.marga_id === parseInt(margaId));
+            const matchSubSuku = !subSuku || (person.marga && person.marga.sub_suku === subSuku);
+            const matchGender = !gender || person.jenis_kelamin === gender;
+            return matchSearch && matchMarga && matchSubSuku && matchGender;
+        });
+
+        renderPersons(filtered);
     }
 
     function renderPersons(persons) {
@@ -69,7 +104,6 @@ $(document).ready(function () {
             `);
         });
 
-        // Delete button handlers
         $('.delete-btn').on('click', function () {
             const personId = $(this).data('id');
             if (confirm('Apakah Anda yakin ingin menghapus person ini?')) {
@@ -81,10 +115,7 @@ $(document).ready(function () {
     function savePerson() {
         const formData = $('#addPersonForm').serializeArray();
         const personData = {};
-        formData.forEach(function (item) {
-            personData[item.name] = item.value;
-        });
-
+        formData.forEach(function (item) { personData[item.name] = item.value; });
         API.createPerson(personData).then(function (result) {
             if (result) {
                 alert('Anggota berhasil ditambahkan!');
@@ -106,5 +137,13 @@ $(document).ready(function () {
                 alert('Gagal menghapus anggota');
             }
         });
+    }
+
+    function debounce(fn, ms) {
+        let t;
+        return function () {
+            clearTimeout(t);
+            t = setTimeout(() => fn.apply(this, arguments), ms);
+        };
     }
 });

@@ -39,6 +39,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="admin.html">Admin</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="assistant.html">🤖 AI</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -48,8 +51,30 @@
         <div class="row">
             <div class="col-12">
                 <h1>Daftar Dongan Tubu (Anggota Keluarga)</h1>
-                <div class="mb-3">
-                    <input type="text" class="form-control" id="searchInput" placeholder="Cari anggota keluarga...">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Cari nama anggota...">
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterMarga">
+                            <option value="">Semua Marga</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterSubSuku">
+                            <option value="">Semua Sub-Suku</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select class="form-select" id="filterGender">
+                            <option value="">Semua Gender</option>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-secondary w-100" id="resetFilterBtn">Reset</button>
+                    </div>
                 </div>
                 <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPersonModal">
                     + Tambah Anggota

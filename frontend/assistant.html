@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Tarombo Assistant - Tarombo Digital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .chat-container { max-height: 60vh; overflow-y: auto; }
+        .chat-msg { margin-bottom: 12px; display: flex; }
+        .chat-msg.user { justify-content: flex-end; }
+        .chat-msg.bot { justify-content: flex-start; }
+        .chat-bubble { max-width: 80%; padding: 10px 16px; border-radius: 16px; }
+        .chat-msg.user .chat-bubble { background: #0d6efd; color: white; border-bottom-right-radius: 4px; }
+        .chat-msg.bot .chat-bubble { background: #f1f3f5; color: #212529; border-bottom-left-radius: 4px; }
+        .chat-bubble small { opacity: 0.7; }
+        .suggestion-chip { cursor: pointer; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">🌳 Tarombo Digital</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="persons.html">Dongan Tubu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="family-tree.html">Pohon Tarombo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="partuturan.html">Partuturan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="marriages.html">Perkawinan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ceremonies.html">Acara Adat</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin.html">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="assistant.html">🤖 AI</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <span><strong>🤖 AI Tarombo Assistant</strong></span>
+                        <small>Asisten Kekerabatan Adat Batak</small>
+                    </div>
+                    <div class="card-body chat-container" id="chatBox">
+                        <div class="chat-msg bot">
+                            <div class="chat-bubble">
+                                <p class="mb-1">Horas! Saya adalah AI Tarombo Assistant.</p>
+                                <p class="mb-0">Saya bisa membantu Anda dengan pertanyaan tentang:</p>
+                                <ul class="mb-0 ps-3"><li>Hubungan kekerabatan (Partuturan)</li><li>Cari Tulang, Namboru, Bere, Pariban</li><li>Pengetahuan adat Batak</li></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex flex-wrap gap-2 mb-2" id="suggestionChips">
+                            <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Apa itu Dalihan Na Tolu?')">Apa itu Dalihan Na Tolu?</span>
+                            <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Siapa Tulang saya?')">Siapa Tulang saya?</span>
+                            <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Apa hubungan saya dengan John Simanjuntak?')">Apa hubungan saya dengan John?</span>
+                            <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Siapa Pariban ideal saya?')">Siapa Pariban ideal saya?</span>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="queryInput" placeholder="Tanyakan sesuatu..." onkeydown="if(event.key==='Enter') sendQuery()">
+                            <button class="btn btn-primary" onclick="sendQuery()">Kirim</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-3 bg-light text-center">
+        <div class="container"><p class="mb-0">&copy; 2024 Tarombo Digital</p></div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth-nav.js"></script>
+    <script>
+    let currentUser = null;
+    let allPersons = [];
+    let userPerson = null;
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        preloadData();
+        const token = localStorage.getItem('tarombo_token');
+        if (token) {
+            try {
+                const user = await API.me();
+                currentUser = user;
+            } catch (e) {}
+        }
+    });
+
+    async function preloadData() {
+        try { allPersons = await API.getPersons(); } catch (e) {}
+    }
+
+    function setQuery(text) {
+        document.getElementById('queryInput').value = text;
+        sendQuery();
+    }
+
+    async function sendQuery() {
+        const input = document.getElementById('queryInput');
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = '';
+
+        addMessage(text, 'user');
+        const response = await processQuery(text);
+        addMessage(response, 'bot');
+    }
+
+    function addMessage(html, from) {
+        const box = document.getElementById('chatBox');
+        const div = document.createElement('div');
+        div.className = `chat-msg ${from}`;
+        div.innerHTML = `<div class="chat-bubble">${html}</div>`;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    async function processQuery(text) {
+        const q = text.toLowerCase();
+
+        // 1. Dalihan Na Tolu
+        if (q.includes('dalihan na tolu') || q.includes('somba') || q.includes('manat') || q.includes('martula')) {
+            return `<strong>Dalihan Na Tolu</strong> adalah tiga pilar adat Batak:<br>
+            <strong>1. Somba</strong> — Hormat kepada yang lebih tua/dalam adat<br>
+            <strong>2. Manat</strong> — Adil dalam bertindak dan mengambil keputusan<br>
+            <strong>3. Martula-tula</strong> — Saling melengkapi antar marga dalam acara adat`;
+        }
+
+        // 2. Tarombo meaning
+        if (q.includes('tarombo') || q.includes('silsilah') || q.includes('arti')) {
+            return `<strong>Tarombo</strong> adalah silsilah keluarga Batak yang menelusuri garis keturunan dari leluhur hingga generasi sekarang. Bagi orang Batak, mengetahui tarombo adalah kewajiban — orang yang tidak mengetahui tarombonya disebut <em>nalilu</em> (terasing).`;
+        }
+
+        // 3. Tulang
+        if (q.includes('tulang') && (q.includes('saya') || q.includes('aku') || q.includes('aku'))) {
+            if (!currentUser) return 'Silakan <a href="login.html">login</a> terlebih dahulu agar saya bisa mengetahui identitas Anda.';
+            // Find person linked to user
+            const linked = allPersons.find(p => p.nama.toLowerCase().includes(currentUser.nama.toLowerCase().split(' ')[0]));
+            if (!linked) return `Data Anda belum terhubung dengan person di sistem. Silakan hubungi admin.`;
+            const response = await fetch(`${API_BASE_URL}/persons/${linked.id}`);
+            const result = await response.json();
+            const tulang = result.data?.relationships?.tulang || [];
+            if (!tulang.length) return `Anda (${linked.nama}) tidak memiliki data Tulang dalam sistem. Tulang adalah saudara laki-laki dari ibu Anda.`;
+            return `Tulang Anda (${linked.nama}):<br><ul class="mb-0 ps-3">${tulang.map(t => `<li>${t.nama}</li>`).join('')}</ul><br><small>Tulang = saudara laki-laki ibu (pihak Hula-hula)</small>`;
+        }
+
+        // 4. Pariban
+        if (q.includes('pariban') && (q.includes('saya') || q.includes('aku') || q.includes('ideal'))) {
+            if (!currentUser) return 'Silakan <a href="login.html">login</a> terlebih dahulu agar saya bisa membantu.';
+            const linked = allPersons.find(p => p.nama.toLowerCase().includes(currentUser.nama.toLowerCase().split(' ')[0]));
+            if (!linked) return `Data Anda belum terhubung dengan person di sistem.`;
+            const response = await fetch(`${API_BASE_URL}/persons/${linked.id}`);
+            const result = await response.json();
+            const candidates = result.data?.relationships?.pariban_candidates || [];
+            if (!candidates.length) return `Tidak ditemukan calon Pariban untuk Anda dalam database.<br><small>Pariban = pasangan ideal menurut adat (anak perempuan Tulang untuk laki-laki, atau anak laki-laki Namboru untuk perempuan)</small>`;
+            const top = candidates.slice(0, 3);
+            return `Calon Pariban ideal untuk Anda (${linked.nama}):<br><ul class="mb-0 ps-3">${top.map(c => `<li><strong>${c.person.nama}</strong> — skor ${c.match_score}% (melalui ${c.through})</li>`).join('')}</ul>`;
+        }
+
+        // 5. Hubungan dengan X
+        const hubMatch = q.match(/hubungan.*dengan\s+(.+)|saya.*dengan\s+(.+)/);
+        if (hubMatch || q.includes('hubungan')) {
+            const nameMatch = text.match(/dengan\s+([A-Za-z\s]+)/);
+            if (nameMatch) {
+                const targetName = nameMatch[1].trim();
+                const fromP = allPersons.find(p => currentUser && p.nama.toLowerCase().includes(currentUser.nama.toLowerCase().split(' ')[0]));
+                const toP = allPersons.find(p => p.nama.toLowerCase().includes(targetName.toLowerCase()));
+                if (!fromP) return 'Silakan login terlebih dahulu.';
+                if (!toP) return `Orang dengan nama "${targetName}" tidak ditemukan dalam database.`;
+                try {
+                    const res = await API.calculatePartuturan(fromP.id, toP.id);
+                    if (res) {
+                        return `Hubungan Anda (${fromP.nama}) dengan ${toP.nama}:<br><strong class="fs-5">${res.relationship || 'Tidak diketahui'}</strong><br>${res.indonesian ? `(${res.indonesian})` : ''}<br><small>${res.explanation || ''}</small>`;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // 6. Partuturan general
+        if (q.includes('partuturan') || q.includes('panggilan') || q.includes('sebutan')) {
+            return `<strong>Partuturan</strong> adalah sistem panggilan/penyebutan dalam adat Batak berdasarkan hubungan kekerabatan. Contoh:<br>
+            <ul class="mb-0 ps-3"><li><strong>Inang</strong> — Ibu</li><li><strong>Amang</strong> — Ayah</li><li><strong>Tulang</strong> — Saudara laki-laki ibu</li><li><strong>Namboru</strong> — Saudara perempuan ayah</li><li><strong>Bere</strong> — Anak dari saudara perempuan</li><li><strong>Pariban</strong> — Pasangan ideal (anak perempuan Tulang / anak laki-laki Namboru)</li></ul><br>Gunakan halaman <a href="partuturan.html">Partuturan</a> untuk menghitung hubungan spesifik.`;
+        }
+
+        // 7. Marga
+        if (q.includes('marga') && (q.includes('apa') || q.includes('artinya'))) {
+            return `<strong>Marga</strong> adalah nama keluarga besar (klan) dalam masyarakat Batak. Marga menentukan:<br>
+            <ul class="mb-0 ps-3"><li>Dalihan Na Tolu (Hula-hula, Boru, Dongan Tubu)</li><li>Larangan perkawinan sesama marga</li><li>Identitas dan kebanggaan keluarga</li></ul>`;
+        }
+
+        // 8. Saur Matua
+        if (q.includes('saur matua') || q.includes('kematian') || q.includes('upacara kematian')) {
+            return `<strong>Saur Matua</strong> adalah upacara adat kematian dalam tradisi Batak. Prosesinya meliputi:<br>
+            <ul class="mb-0 ps-3"><li>Mangongkal holi (memindahkan tulang)</li><li>Manenean (doa bersama)</li><li>Pesta adat sebagai tanda penghormatan terakhir</li></ul>`;
+        }
+
+        // 9. Marhataisansang / forbidden marriage
+        if (q.includes('larangan') || q.includes('nikah') || q.includes('perkawinan') || q.includes('marhataisangsang')) {
+            return `Dalam adat Batak, terdapat aturan perkawinan:<br>
+            <ul class="mb-0 ps-3"><li><strong>Dilarang</strong> menikah sesama marga (BR-PRK-006)</li><li><strong>Dilarang</strong> menikah antara marga tertentu (contoh: Marbun-Sihotang)</li><li><strong>Hula-hula</strong> = pihak pemberi perempuan</li><li><strong>Boru</strong> = pihak menerima perempuan</li></ul><br>Lihat <a href="marriages.html">halaman Perkawinan</a> untuk cek aturan.`;
+        }
+
+        // Default
+        return `Maaf, saya belum memahami pertanyaan tersebut. Silakan coba salah satu topik:<br>
+        <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Apa itu Dalihan Na Tolu?')">Dalihan Na Tolu</span>
+        <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Siapa Tulang saya?')">Tulang saya</span>
+        <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Jelaskan Partuturan')">Partuturan</span>
+        <span class="badge bg-light text-dark suggestion-chip border" onclick="setQuery('Apa itu Saur Matua?')">Saur Matua</span>`;
+    }
+    </script>
+</body>
+</html>
