@@ -79,7 +79,7 @@ test.describe('API Backend Tests', () => {
 
 test.describe('Persons Page - Functional Tests', () => {
   test('persons page loads and displays table', async ({ page }) => {
-    await page.goto('/persons.html')
+    await page.goto('persons.html')
     await expect(page.locator('h1')).toContainText('Daftar Person')
     await expect(page.locator('#searchInput')).toBeVisible()
     await expect(page.locator('#personsTable')).toBeVisible()
@@ -93,7 +93,7 @@ test.describe('Persons Page - Functional Tests', () => {
   })
 
   test('search filter works on persons page', async ({ page }) => {
-    await page.goto('/persons.html')
+    await page.goto('persons.html')
     await page.waitForFunction(() => {
       const rows = document.querySelectorAll('#personsTable tr')
       return rows.length > 1 && !rows[0].textContent?.includes('Loading')
@@ -107,7 +107,7 @@ test.describe('Persons Page - Functional Tests', () => {
   })
 
   test('tambah person modal opens and closes', async ({ page }) => {
-    await page.goto('/persons.html')
+    await page.goto('persons.html')
     await page.click('button[data-bs-target="#addPersonModal"]')
     await expect(page.locator('#addPersonModal')).toBeVisible()
     await page.click('#addPersonModal .btn-close')
@@ -115,7 +115,7 @@ test.describe('Persons Page - Functional Tests', () => {
   })
 
   test('marga dropdown populated in add person modal', async ({ page }) => {
-    await page.goto('/persons.html')
+    await page.goto('persons.html')
     await page.click('button[data-bs-target="#addPersonModal"]')
     await page.waitForFunction(() => {
       const select = document.querySelector('#margaSelect') as HTMLSelectElement
@@ -128,13 +128,13 @@ test.describe('Persons Page - Functional Tests', () => {
 
 test.describe('Family Tree Page - Functional Tests', () => {
   test('family tree page loads correctly', async ({ page }) => {
-    await page.goto('/family-tree.html')
+    await page.goto('family-tree.html')
     await expect(page.locator('h1')).toContainText('Family Tree')
     await expect(page.locator('#rootPersonSelect')).toBeVisible()
   })
 
   test('person select populated in family tree', async ({ page }) => {
-    await page.goto('/family-tree.html')
+    await page.goto('family-tree.html')
     await page.waitForFunction(() => {
       const select = document.querySelector('#rootPersonSelect') as HTMLSelectElement
       return select && select.options.length > 1
@@ -144,7 +144,7 @@ test.describe('Family Tree Page - Functional Tests', () => {
   })
 
   test('selecting person renders family tree', async ({ page }) => {
-    await page.goto('/family-tree.html')
+    await page.goto('family-tree.html')
     await page.waitForFunction(() => {
       const select = document.querySelector('#rootPersonSelect') as HTMLSelectElement
       return select && select.options.length > 1
@@ -158,7 +158,7 @@ test.describe('Family Tree Page - Functional Tests', () => {
 
 test.describe('Partuturan Page - Functional Tests', () => {
   test('partuturan page loads correctly', async ({ page }) => {
-    await page.goto('/partuturan.html')
+    await page.goto('partuturan.html')
     await expect(page.locator('h1')).toContainText('Kalkulator Partuturan')
     await expect(page.locator('#person1Select')).toBeVisible()
     await expect(page.locator('#person2Select')).toBeVisible()
@@ -166,7 +166,7 @@ test.describe('Partuturan Page - Functional Tests', () => {
   })
 
   test('person selects populated in partuturan', async ({ page }) => {
-    await page.goto('/partuturan.html')
+    await page.goto('partuturan.html')
     await page.waitForFunction(() => {
       const s1 = document.querySelector('#person1Select') as HTMLSelectElement
       const s2 = document.querySelector('#person2Select') as HTMLSelectElement
@@ -179,7 +179,7 @@ test.describe('Partuturan Page - Functional Tests', () => {
   })
 
   test('calculate button shows alert when no person selected', async ({ page }) => {
-    await page.goto('/partuturan.html')
+    await page.goto('partuturan.html')
     page.on('dialog', async dialog => {
       expect(dialog.message()).toContain('Pilih dua person')
       await dialog.accept()
@@ -188,7 +188,7 @@ test.describe('Partuturan Page - Functional Tests', () => {
   })
 
   test('calculate partuturan between two related persons', async ({ page }) => {
-    await page.goto('/partuturan.html')
+    await page.goto('partuturan.html')
     await page.waitForFunction(() => {
       const s1 = document.querySelector('#person1Select') as HTMLSelectElement
       return s1 && s1.options.length > 1
