@@ -1,10 +1,10 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:8000/api/v1';
+const API_BASE_URL = '/tarombo/api/v1';
 
 // API Helper Functions
 const API = {
     // Get all persons
-    getPersons: async function() {
+    getPersons: async function () {
         try {
             const response = await fetch(`${API_BASE_URL}/persons`);
             if (!response.ok) throw new Error('Failed to fetch persons');
@@ -17,7 +17,7 @@ const API = {
     },
 
     // Get person by ID
-    getPerson: async function(id) {
+    getPerson: async function (id) {
         try {
             const response = await fetch(`${API_BASE_URL}/persons/${id}`);
             if (!response.ok) throw new Error('Failed to fetch person');
@@ -30,7 +30,7 @@ const API = {
     },
 
     // Create person
-    createPerson: async function(personData) {
+    createPerson: async function (personData) {
         try {
             const response = await fetch(`${API_BASE_URL}/persons`, {
                 method: 'POST',
@@ -49,7 +49,7 @@ const API = {
     },
 
     // Update person
-    updatePerson: async function(id, personData) {
+    updatePerson: async function (id, personData) {
         try {
             const response = await fetch(`${API_BASE_URL}/persons/${id}`, {
                 method: 'PUT',
@@ -68,7 +68,7 @@ const API = {
     },
 
     // Delete person
-    deletePerson: async function(id) {
+    deletePerson: async function (id) {
         try {
             const response = await fetch(`${API_BASE_URL}/persons/${id}`, {
                 method: 'DELETE'
@@ -82,7 +82,7 @@ const API = {
     },
 
     // Get all marga
-    getMarga: async function() {
+    getMarga: async function () {
         try {
             const response = await fetch(`${API_BASE_URL}/marga`);
             if (!response.ok) throw new Error('Failed to fetch marga');
@@ -95,7 +95,7 @@ const API = {
     },
 
     // Calculate partuturan
-    calculatePartuturan: async function(person1Id, person2Id) {
+    calculatePartuturan: async function (person1Id, person2Id) {
         try {
             const response = await fetch(`${API_BASE_URL}/partuturan/calculate?from=${person1Id}&to=${person2Id}`);
             if (!response.ok) throw new Error('Failed to calculate partuturan');
