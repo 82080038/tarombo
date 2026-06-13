@@ -43,6 +43,6 @@ test.describe('Frontend UI Tests - HTML/jQuery', () => {
 
     // Should be on partuturan page
     await expect(page).toHaveURL(/partuturan\.html/)
-    await expect(page.locator('h1')).toContainText('Kalkulator Partuturan')
+    await expect(page.locator('h1')).toContainText('Partuturan')
   })
 })

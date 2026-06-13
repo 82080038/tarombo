@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acara Adat - Tarombo Digital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .ceremony-planned { border-left: 4px solid #0d6efd; }
+        .ceremony-ongoing { border-left: 4px solid #ffc107; }
+        .ceremony-completed { border-left: 4px solid #198754; }
+        .ceremony-cancelled { border-left: 4px solid #6c757d; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">🌳 Tarombo Digital</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="persons.html">Dongan Tubu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="family-tree.html">Pohon Tarombo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="partuturan.html">Partuturan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="marriages.html">Perkawinan</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="ceremonies.html">Acara Adat</a></li>
+                    <li class="nav-item"><a class="nav-link" href="admin.html">Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h2>🎉 Acara Adat</h2>
+                <p class="text-muted mb-0">Kelola upacara adat Batak — Perkawinan, Saur Matua, Kelahiran</p>
+            </div>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCeremonyModal">+ Buat Acara</button>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <select class="form-select" id="filterCeremonyType">
+                    <option value="">Semua Jenis</option>
+                    <option value="MARRIAGE">Perkawinan</option>
+                    <option value="DEATH_SAUR_MATUA">Saur Matua (Kematian)</option>
+                    <option value="BIRTH">Kelahiran</option>
+                    <option value="OTHER">Lainnya</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="filterCeremonyStatus">
+                    <option value="">Semua Status</option>
+                    <option value="PLANNED">Direncanakan</option>
+                    <option value="ONGOING">Berlangsung</option>
+                    <option value="COMPLETED">Selesai</option>
+                    <option value="CANCELLED">Dibatalkan</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="ceremoniesList"><p class="text-muted">Memuat...</p></div>
+    </div>
+
+    <!-- Add Ceremony Modal -->
+    <div class="modal fade" id="addCeremonyModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header"><h5 class="modal-title">Buat Acara Adat</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <form id="addCeremonyForm">
+                        <div class="mb-3">
+                            <label class="form-label">Jenis Acara</label>
+                            <select class="form-select" id="ceremonyType" required>
+                                <option value="MARRIAGE">Perkawinan</option>
+                                <option value="DEATH_SAUR_MATUA">Saur Matua (Kematian)</option>
+                                <option value="BIRTH">Kelahiran</option>
+                                <option value="OTHER">Lainnya</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Acara</label>
+                            <input type="text" class="form-control" id="ceremonyName" required placeholder="Contoh: Pernikahan Budi & Sari">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal</label>
+                            <input type="date" class="form-control" id="ceremonyDate">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Lokasi</label>
+                            <input type="text" class="form-control" id="ceremonyLocation" placeholder="Contoh: Jakarta">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Catatan</label>
+                            <textarea class="form-control" id="ceremonyNotes" rows="2"></textarea>
+                        </div>
+                        <div class="alert alert-danger" id="ceremonyError" style="display: none;"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" id="saveCeremonyBtn">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-3 bg-light text-center">
+        <div class="container"><p class="mb-0">&copy; 2024 Tarombo Digital</p></div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth-nav.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        loadCeremonies();
+        $('#filterCeremonyType, #filterCeremonyStatus').on('change', loadCeremonies);
+        $('#saveCeremonyBtn').on('click', saveCeremony);
+    });
+
+    async function loadCeremonies() {
+        try {
+            const type = $('#filterCeremonyType').val();
+            const status = $('#filterCeremonyStatus').val();
+            const params = new URLSearchParams();
+            if (type) params.set('type', type);
+            if (status) params.set('status', status);
+
+            const response = await fetch(`${API_BASE_URL}/ceremonies?${params.toString()}`);
+            const result = await response.json();
+            if (!result.success) { $('#ceremoniesList').html('<p class="text-danger">Gagal memuat</p>'); return; }
+
+            const items = result.data || [];
+            if (!items.length) { $('#ceremoniesList').html('<p class="text-muted">Belum ada acara</p>'); return; }
+
+            $('#ceremoniesList').html(`<div class="row">${items.map(c => `
+                <div class="col-md-6 mb-3">
+                    <div class="card ceremony-${c.status.toLowerCase()}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="card-title">${c.ceremony_name}</h6>
+                                <span class="badge bg-${getStatusColor(c.status)}">${getStatusLabel(c.status)}</span>
+                            </div>
+                            <p class="mb-1"><small class="text-muted">${getTypeLabel(c.ceremony_type)}</small></p>
+                            <p class="mb-1">📅 ${c.ceremony_date || '-'} | 📍 ${c.ceremony_location || '-'}</p>
+                            ${c.notes ? `<p class="mb-0"><small>${c.notes}</small></p>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('')}</div>`);
+        } catch (e) { $('#ceremoniesList').html('<p class="text-danger">Error memuat data</p>'); }
+    }
+
+    async function saveCeremony() {
+        const btn = $('#saveCeremonyBtn');
+        btn.prop('disabled', true).text('Menyimpan...');
+        $('#ceremonyError').hide();
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/ceremonies`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                    ceremony_type: $('#ceremonyType').val(),
+                    ceremony_name: $('#ceremonyName').val(),
+                    ceremony_date: $('#ceremonyDate').val() || null,
+                    ceremony_location: $('#ceremonyLocation').val() || null,
+                    notes: $('#ceremonyNotes').val() || null,
+                })
+            });
+            const result = await response.json();
+            if (result.success) {
+                bootstrap.Modal.getInstance(document.getElementById('addCeremonyModal')).hide();
+                document.getElementById('addCeremonyForm').reset();
+                loadCeremonies();
+                showToast('Acara berhasil dibuat!', 'success');
+            } else {
+                $('#ceremonyError').text(result.error?.message || 'Gagal menyimpan').show();
+            }
+        } catch (e) { $('#ceremonyError').text('Gagal terhubung ke server').show(); }
+        btn.prop('disabled', false).text('Simpan');
+    }
+
+    function getStatusColor(s) {
+        return { PLANNED: 'primary', ONGOING: 'warning', COMPLETED: 'success', CANCELLED: 'secondary' }[s] || 'secondary';
+    }
+    function getStatusLabel(s) {
+        return { PLANNED: 'Direncanakan', ONGOING: 'Berlangsung', COMPLETED: 'Selesai', CANCELLED: 'Dibatalkan' }[s] || s;
+    }
+    function getTypeLabel(t) {
+        return { MARRIAGE: 'Perkawinan', DEATH_SAUR_MATUA: 'Saur Matua', BIRTH: 'Kelahiran', OTHER: 'Lainnya' }[t] || t;
+    }
+    function showToast(msg, type) {
+        const toast = document.createElement('div');
+        toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        toast.style.cssText = 'top:20px;right:20px;z-index:9999;min-width:250px;';
+        toast.innerHTML = `${msg}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+    </script>
+</body>
+</html>

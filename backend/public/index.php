@@ -8,6 +8,9 @@ use Slim\Factory\AppFactory;
 use App\Controllers\PersonController;
 use App\Controllers\MargaController;
 use App\Controllers\AuthController;
+use App\Controllers\MarriageController;
+use App\Controllers\CeremonyController;
+use App\Controllers\AdminController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\CorsMiddleware;
 
@@ -64,8 +67,35 @@ $app->group('/api/v1/marga', function ($group) {
     $group->get('/{id}', [MargaController::class, 'show']);
 });
 
+// API Routes - Marriages
+$app->group('/api/v1/marriages', function ($group) {
+    $group->get('', [MarriageController::class, 'index']);
+    $group->get('/{id}', [MarriageController::class, 'show']);
+    $group->post('', [MarriageController::class, 'store'])->add(AuthMiddleware::class);
+    $group->put('/{id}/stages/{stage_id}', [MarriageController::class, 'updateStage'])->add(AuthMiddleware::class);
+    $group->delete('/{id}', [MarriageController::class, 'destroy'])->add(AuthMiddleware::class);
+});
+
+// Check if two margas can marry
+$app->get('/api/v1/margas/{id}/can-marry/{target_id}', [MarriageController::class, 'canMarry']);
+
 // Partuturan calculation endpoint
 $app->get('/api/v1/partuturan/calculate', [PersonController::class, 'calculatePartuturan']);
+
+// Admin routes
+$app->group('/api/v1/admin', function ($group) {
+    $group->get('/statistics', [AdminController::class, 'statistics'])->add(AuthMiddleware::class);
+    $group->get('/users', [AdminController::class, 'users'])->add(AuthMiddleware::class);
+    $group->put('/users/{id}/role', [AdminController::class, 'updateUserRole'])->add(AuthMiddleware::class);
+});
+
+// Ceremony routes
+$app->group('/api/v1/ceremonies', function ($group) {
+    $group->get('', [CeremonyController::class, 'index']);
+    $group->post('', [CeremonyController::class, 'store'])->add(AuthMiddleware::class);
+    $group->get('/{id}', [CeremonyController::class, 'show']);
+    $group->put('/{id}', [CeremonyController::class, 'update'])->add(AuthMiddleware::class);
+});
 
 // Run app
 $app->run();

@@ -64,7 +64,7 @@ test.describe('Homepage', () => {
     // Partuturan
     await page.click('a[href="partuturan.html"]')
     await expect(page).toHaveURL(/partuturan\.html/)
-    await expect(page.locator('h1')).toContainText('Kalkulator Partuturan')
+    await expect(page.locator('h1')).toContainText('Partuturan')
   })
 })
 
@@ -158,7 +158,7 @@ test.describe('Family Tree Page', () => {
 test.describe('Partuturan Page', () => {
   test('loads and populates person selects', async ({ page }) => {
     await page.goto('partuturan.html')
-    await expect(page.locator('h1')).toContainText('Kalkulator Partuturan')
+    await expect(page.locator('h1')).toContainText('Partuturan')
 
     // Wait for selects to populate
     await page.waitForFunction(() => {

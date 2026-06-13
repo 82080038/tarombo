@@ -185,4 +185,98 @@ class Person extends Model
     {
         return $query->where('marga_id', $margaId);
     }
+    
+    /**
+     * Calculate Bere (children of sisters) - BR-BER-001
+     * Formula: SAUDARA PEREMPUAN → ANAK
+     */
+    public function getBere(): array
+    {
+        $bere = [];
+        $sisters = $this->siblings()->filter(fn($s) => $s->jenis_kelamin === 'P');
+        foreach ($sisters as $sister) {
+            foreach ($sister->childrenAsMother as $child) {
+                $bere[] = [
+                    'person' => $child->toArray(),
+                    'through_sister' => $sister->nama,
+                    'relation' => 'Anak dari saudara perempuan (Bere)'
+                ];
+            }
+        }
+        return $bere;
+    }
+    
+    /**
+     * Find Pariban candidates (ideal match per adat) - BR-PAR-001, BR-PAR-002
+     * For male: anak perempuan dari Tulang (saudara laki ibu)
+     * For female: anak laki-laki dari Namboru (saudara perempuan ayah)
+     */
+    public function getParibanCandidates(): array
+    {
+        $candidates = [];
+        
+        if ($this->jenis_kelamin === 'L') {
+            // Male looking for: daughter of mother's brother (Tulang's daughter)
+            if ($this->mother) {
+                $tulangList = $this->mother->siblings()->filter(fn($s) => $s->jenis_kelamin === 'L');
+                foreach ($tulangList as $tulang) {
+                    foreach ($tulang->childrenAsFather as $child) {
+                        if ($child->jenis_kelamin === 'P') {
+                            $candidates[] = [
+                                'person' => $child->toArray(),
+                                'through' => 'Tulang: ' . $tulang->nama,
+                                'relation_type' => 'Anak perempuan dari Tulang (saudara laki ibu)',
+                                'match_score' => $this->calculateMatchScore($child)
+                            ];
+                        }
+                    }
+                }
+            }
+        } else {
+            // Female looking for: son of father's sister (Namboru's son)
+            if ($this->father) {
+                $namboruList = $this->father->siblings()->filter(fn($s) => $s->jenis_kelamin === 'P');
+                foreach ($namboruList as $namboru) {
+                    foreach ($namboru->childrenAsMother as $child) {
+                        if ($child->jenis_kelamin === 'L') {
+                            $candidates[] = [
+                                'person' => $child->toArray(),
+                                'through' => 'Namboru: ' . $namboru->nama,
+                                'relation_type' => 'Anak laki-laki dari Namboru (saudara perempuan ayah)',
+                                'match_score' => $this->calculateMatchScore($child)
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $candidates;
+    }
+    
+    /**
+     * Simple match score based on age difference and same sub-suku
+     */
+    private function calculateMatchScore(Person $candidate): int
+    {
+        $score = 50; // base score
+        
+        // Same sub-suku bonus
+        if ($this->marga && $candidate->marga && $this->marga->sub_suku === $candidate->marga->sub_suku) {
+            $score += 20;
+        }
+        
+        // Age difference bonus (closer = better)
+        if ($this->tanggal_lahir && $candidate->tanggal_lahir) {
+            $ageDiff = abs(strtotime($this->tanggal_lahir) - strtotime($candidate->tanggal_lahir));
+            $yearsDiff = $ageDiff / (365 * 24 * 60 * 60);
+            if ($yearsDiff < 5) $score += 30;
+            elseif ($yearsDiff < 10) $score += 15;
+            elseif ($yearsDiff < 20) $score += 5;
+        } else {
+            $score += 10; // unknown age = moderate score
+        }
+        
+        return min(100, $score);
+    }
 }

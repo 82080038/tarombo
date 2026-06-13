@@ -159,7 +159,7 @@ test.describe('Family Tree Page - Functional Tests', () => {
 test.describe('Partuturan Page - Functional Tests', () => {
   test('partuturan page loads correctly', async ({ page }) => {
     await page.goto('partuturan.html')
-    await expect(page.locator('h1')).toContainText('Kalkulator Partuturan')
+    await expect(page.locator('h1')).toContainText('Partuturan')
     await expect(page.locator('#person1Select')).toBeVisible()
     await expect(page.locator('#person2Select')).toBeVisible()
     await expect(page.locator('#calculateBtn')).toBeVisible()

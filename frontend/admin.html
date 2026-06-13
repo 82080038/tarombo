@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Tarombo Digital</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stat-card {
+            border-left: 4px solid;
+        }
+
+        .stat-card.persons {
+            border-color: #0d6efd;
+        }
+
+        .stat-card.marga {
+            border-color: #198754;
+        }
+
+        .stat-card.marriages {
+            border-color: #dc3545;
+        }
+
+        .stat-card.users {
+            border-color: #ffc107;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">🌳 Tarombo Digital</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="persons.html">Dongan Tubu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="family-tree.html">Pohon Tarombo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="partuturan.html">Partuturan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="marriages.html">Perkawinan</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ceremonies.html">Acara Adat</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="admin.html">Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h2>📊 Dashboard Admin</h2>
+        <p class="text-muted">Statistik dan manajemen sistem Tarombo Digital</p>
+
+        <div id="adminError" class="alert alert-danger" style="display: none;"></div>
+
+        <!-- Overview Cards -->
+        <div class="row mt-4" id="statsCards">
+            <div class="col-md-3">
+                <div class="card stat-card persons mb-3">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Anggota</h6>
+                        <h3 id="statPersons">-</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card marga mb-3">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Marga</h6>
+                        <h3 id="statMarga">-</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card marriages mb-3">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total Perkawinan</h6>
+                        <h3 id="statMarriages">-</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card users mb-3">
+                    <div class="card-body">
+                        <h6 class="text-muted">Total User</h6>
+                        <h3 id="statUsers">-</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribution Charts -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Distribusi per Sub-Suku</h5>
+                    </div>
+                    <div class="card-body" id="subSukuChart">
+                        <p class="text-muted">Memuat...</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Distribusi Gender</h5>
+                    </div>
+                    <div class="card-body" id="genderChart">
+                        <p class="text-muted">Memuat...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Aktivitas Terbaru</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Waktu</th>
+                                        <th>Aksi</th>
+                                        <th>Entitas</th>
+                                        <th>ID</th>
+                                        <th>Oleh</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="activityTable">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted">Memuat...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="mt-5 py-3 bg-light text-center">
+        <div class="container">
+            <p class="mb-0">&copy; 2024 Tarombo Digital. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth-nav.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

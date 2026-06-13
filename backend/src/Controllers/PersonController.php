@@ -87,7 +87,9 @@ class PersonController
             'data' => $person->toArray(),
             'relationships' => [
                 'tulang' => $person->getTulang(),
-                'namboru' => $person->getNamboru()
+                'namboru' => $person->getNamboru(),
+                'bere' => $person->getBere(),
+                'pariban_candidates' => $person->getParibanCandidates()
             ]
         ]));
         
