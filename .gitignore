@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+vendor/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Production
+dist/
+build/
+*.log
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.sql.backup
+database/*.sql.backup
+
+# Logs
+logs/
+*.log
+backend/logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
