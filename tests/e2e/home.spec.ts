@@ -5,7 +5,7 @@ test.describe('Frontend UI Tests - HTML/jQuery', () => {
     await page.goto('index.html')
 
     // Check for welcome message
-    await expect(page.locator('h1')).toContainText('Selamat Datang')
+    await expect(page.locator('h1')).toContainText('Horas! Selamat Datang')
 
     // Check for navigation links (use more specific selector)
     await expect(page.locator('.navbar-nav a[href="persons.html"]')).toBeVisible()
@@ -21,7 +21,7 @@ test.describe('Frontend UI Tests - HTML/jQuery', () => {
 
     // Should be on persons page
     await expect(page).toHaveURL(/persons\.html/)
-    await expect(page.locator('h1')).toContainText('Daftar Person')
+    await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
   })
 
   test('should navigate to family tree page', async ({ page }) => {
@@ -32,7 +32,7 @@ test.describe('Frontend UI Tests - HTML/jQuery', () => {
 
     // Should be on tree page
     await expect(page).toHaveURL(/family-tree\.html/)
-    await expect(page.locator('h1')).toContainText('Family Tree')
+    await expect(page.locator('h1')).toContainText('Pohon Tarombo')
   })
 
   test('should navigate to partuturan page', async ({ page }) => {

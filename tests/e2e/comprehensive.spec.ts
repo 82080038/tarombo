@@ -80,7 +80,7 @@ test.describe('API Backend Tests', () => {
 test.describe('Persons Page - Functional Tests', () => {
   test('persons page loads and displays table', async ({ page }) => {
     await page.goto('persons.html')
-    await expect(page.locator('h1')).toContainText('Daftar Person')
+    await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
     await expect(page.locator('#searchInput')).toBeVisible()
     await expect(page.locator('#personsTable')).toBeVisible()
     // Wait for data to load
@@ -129,7 +129,7 @@ test.describe('Persons Page - Functional Tests', () => {
 test.describe('Family Tree Page - Functional Tests', () => {
   test('family tree page loads correctly', async ({ page }) => {
     await page.goto('family-tree.html')
-    await expect(page.locator('h1')).toContainText('Family Tree')
+    await expect(page.locator('h1')).toContainText('Pohon Tarombo')
     await expect(page.locator('#rootPersonSelect')).toBeVisible()
   })
 
@@ -181,7 +181,7 @@ test.describe('Partuturan Page - Functional Tests', () => {
   test('calculate button shows alert when no person selected', async ({ page }) => {
     await page.goto('partuturan.html')
     page.on('dialog', async dialog => {
-      expect(dialog.message()).toContain('Pilih dua person')
+      expect(dialog.message()).toContain('Pilih dua anggota')
       await dialog.accept()
     })
     await page.click('#calculateBtn')

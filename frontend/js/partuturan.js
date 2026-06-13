@@ -13,7 +13,7 @@ $(document).ready(function () {
         if (person1Id && person2Id) {
             calculatePartuturan(person1Id, person2Id);
         } else {
-            alert('Pilih dua person untuk menghitung partuturan');
+            alert('Pilih dua anggota untuk menghitung partuturan');
         }
     });
 
@@ -29,10 +29,10 @@ $(document).ready(function () {
         const select2 = $('#person2Select');
 
         select1.empty();
-        select1.append('<option value="">Pilih Person 1</option>');
+        select1.append('<option value="">Pilih Anggota</option>');
 
         select2.empty();
-        select2.append('<option value="">Pilih Person 2</option>');
+        select2.append('<option value="">Pilih Anggota</option>');
 
         persons.forEach(function (person) {
             const margaName = person.marga ? person.marga.nama : '';

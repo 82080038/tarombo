@@ -33,7 +33,7 @@ test.describe('Homepage', () => {
   test('loads with correct title and navbar', async ({ page }) => {
     await page.goto('')
     await expect(page).toHaveTitle(/Tarombo Digital/)
-    await expect(page.locator('h1')).toContainText('Selamat Datang')
+    await expect(page.locator('h1')).toContainText('Horas! Selamat Datang')
     await expect(page.locator('.navbar-brand')).toContainText('Tarombo Digital')
 
     // Check navigation links exist (navbar only)
@@ -48,7 +48,7 @@ test.describe('Homepage', () => {
     // Persons
     await page.click('a[href="persons.html"]')
     await expect(page).toHaveURL(/persons\.html/)
-    await expect(page.locator('h1')).toContainText('Daftar Person')
+    await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
 
     // Back to home
     await page.goto('')
@@ -56,7 +56,7 @@ test.describe('Homepage', () => {
     // Family Tree
     await page.click('a[href="family-tree.html"]')
     await expect(page).toHaveURL(/family-tree\.html/)
-    await expect(page.locator('h1')).toContainText('Family Tree')
+    await expect(page.locator('h1')).toContainText('Pohon Tarombo')
 
     // Back to home
     await page.goto('')
@@ -71,7 +71,7 @@ test.describe('Homepage', () => {
 test.describe('Persons Page', () => {
   test('loads and displays person data from API', async ({ page }) => {
     await page.goto('persons.html')
-    await expect(page.locator('h1')).toContainText('Daftar Person')
+    await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
 
     // Wait for API data to load (table rows appear, not just loading row)
     await page.waitForFunction(() => {
@@ -124,7 +124,7 @@ test.describe('Persons Page', () => {
 test.describe('Family Tree Page', () => {
   test('loads and populates root person select', async ({ page }) => {
     await page.goto('family-tree.html')
-    await expect(page.locator('h1')).toContainText('Family Tree')
+    await expect(page.locator('h1')).toContainText('Pohon Tarombo')
 
     // Wait for select to populate
     await page.waitForFunction(() => {
@@ -177,7 +177,7 @@ test.describe('Partuturan Page', () => {
     await page.goto('partuturan.html')
 
     page.on('dialog', async (dialog) => {
-      expect(dialog.message()).toContain('Pilih dua person')
+      expect(dialog.message()).toContain('Pilih dua anggota')
       await dialog.accept()
     })
 
