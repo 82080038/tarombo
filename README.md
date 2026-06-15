@@ -155,6 +155,30 @@ GET /api/v1/marga/{id}           # Get marga detail
 GET /api/v1/partuturan/calculate?from={id}&to={id}
 ```
 
+### Harta Warisan (Assets)
+```
+GET    /api/v1/assets            # List all assets
+GET    /api/v1/assets/{id}       # Get asset detail
+POST   /api/v1/assets            # Create asset (auth required)
+PUT    /api/v1/assets/{id}       # Update asset (auth required)
+DELETE /api/v1/assets/{id}       # Delete asset (auth required)
+POST   /api/v1/assets/{id}/transfer   # Transfer ownership (auth required)
+GET    /api/v1/assets/{id}/inheritance  # Get inheritance history
+```
+
+### Keuangan Punguan (Finance)
+```
+GET    /api/v1/finance/transactions   # List transactions
+POST   /api/v1/finance/transactions   # Create transaction (auth required)
+PUT    /api/v1/finance/transactions/{id}/verify  # Verify transaction (auth required)
+GET    /api/v1/finance/budgets        # List budgets
+POST   /api/v1/finance/budgets        # Create budget (auth required)
+GET    /api/v1/finance/iuran          # List iuran
+POST   /api/v1/finance/iuran          # Create iuran (auth required)
+PUT    /api/v1/finance/iuran/{id}/pay  # Pay iuran (auth required)
+GET    /api/v1/finance/summary       # Get financial summary
+```
+
 ---
 
 ## 🏗️ Tech Stack
@@ -165,6 +189,9 @@ GET /api/v1/partuturan/calculate?from={id}&to={id}
 - **JWT** untuk authentication
 - **Neo4j** untuk graph relationships (optional)
 
+| BR-AST-001 | Asset inheritance tracking | ✅ Implemented |
+| BR-FIN-001 | Financial transaction verification | ✅ Implemented |
+| BR-TAN-001 | Customary land management | ✅ Implemented |
 ### Frontend
 - **HTML 5** untuk struktur
 - **Bootstrap 5.3** untuk styling

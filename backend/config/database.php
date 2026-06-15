@@ -17,7 +17,7 @@ $capsule->addConnection([
     'charset'   => 'utf8mb4',
     'collation' => 'utf8mb4_unicode_ci',
     'prefix'    => '',
-    'unix_socket' => '/opt/lampp/var/mysql/mysql.sock',
+    'unix_socket' => $_ENV['DB_UNIX_SOCKET'] ?? '/opt/lampp/var/mysql/mysql.sock',
 ]);
 
 $capsule->setAsGlobal();

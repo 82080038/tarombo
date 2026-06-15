@@ -5,7 +5,10 @@ function navActive($page) {
     global $activePage;
     return $activePage === $page ? 'active' : '';
 }
-?><nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+$currentUser = getCurrentUser();
+$userRole = $currentUser['role'] ?? 'guest';
+?>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="<?= TAROMBO_BASE_URL ?>/">🌳 Tarombo Digital</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -27,13 +30,31 @@ function navActive($page) {
                         <li><a class="dropdown-item" href="makam.html">🪦 Makam</a></li>
                         <li><a class="dropdown-item" href="map.html">🗺️ Peta Keluarga</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <?php if (hasRole(['admin', 'tetua'])): ?>
-                        <li><a class="dropdown-item" href="admin.html">📊 Admin</a></li>
+                        <li><a class="dropdown-item" href="assets.php">🏛️ Harta Warisan</a></li>
+                        <li><a class="dropdown-item" href="finance.php">💰 Keuangan Punguan</a></li>
+                        <li><a class="dropdown-item" href="tanah-ulayat.php">🗺️ Tanah Ulayat</a></li>
+                        <li><a class="dropdown-item" href="events.php">📅 Acara & Kalender</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="oral-traditions.php">🎤 Tradisi Lisan</a></li>
+                        <li><a class="dropdown-item" href="traditional-knowledge.php">🌱 Pengetahuan Tradisional</a></li>
+                        <li><a class="dropdown-item" href="cultural-sites.php">🏛️ Situs Budaya</a></li>
+                        <li><a class="dropdown-item" href="history-tracking.php">📊 History Tracking</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="notifications.php">🔔 Notifikasi</a></li>
+                        <?php if (hasRole(['admin', 'superadmin'])): ?>
+                        <li><a class="dropdown-item" href="backup.php">💾 Backup & Restore</a></li>
+                        <li><a class="dropdown-item" href="admin.php">📊 Admin</a></li>
                         <?php endif; ?>
                         <li><a class="dropdown-item" href="assistant.html">🤖 AI Assistant</a></li>
                     </ul>
                 </li>
-                <li class="nav-item" id="authNavItem"><a class="nav-link" href="login.html">🔑 Login</a></li>
+                <li class="nav-item" id="authNavItem">
+                    <?php if ($currentUser): ?>
+                        <a class="nav-link" href="logout.php">🔓 Logout (<?= e($currentUser['name'] ?? 'User') ?>)</a>
+                    <?php else: ?>
+                        <a class="nav-link" href="login.html">🔑 Login</a>
+                    <?php endif; ?>
+                </li>
             </ul>
         </div>
     </div>

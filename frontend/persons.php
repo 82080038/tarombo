@@ -30,7 +30,7 @@ require_once __DIR__ . '/includes/menu.php';
                     <button class="btn btn-outline-secondary w-100" id="resetFilterBtn">Reset</button>
                 </div>
             </div>
-            <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addPersonModal">+ Tambah Anggota</button>
+            <button class="btn btn-primary mb-3 auth-required" data-bs-toggle="modal" data-bs-target="#addPersonModal">+ Tambah Anggota</button>
         </div>
     </div>
     <div class="row">

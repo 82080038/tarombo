@@ -27,8 +27,8 @@ $(document).ready(function () {
         select.empty();
         select.append('<option value="">Pilih Anggota</option>');
         persons.forEach(function (person) {
-            const margaName = person.marga ? person.marga.nama : '';
-            select.append(`<option value="${person.id}">${person.nama} ${margaName ? '(' + margaName + ')' : ''}</option>`);
+            const fullName = person.full_name || person.nama;
+            select.append(`<option value="${person.id}">${fullName}</option>`);
         });
     }
 
@@ -54,7 +54,7 @@ $(document).ready(function () {
 
         return {
             id: person.id,
-            nama: person.nama,
+            nama: person.full_name || person.nama,
             marga: person.marga ? person.marga.nama : '',
             jenis_kelamin: person.jenis_kelamin,
             children: children.map(child => buildTreeData(child, allPersons, visited)).filter(c => c !== null)

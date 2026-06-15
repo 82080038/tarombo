@@ -121,6 +121,7 @@ const API = {
             return data.data;
         } catch (error) {
             console.error('Error fetching persons:', error);
+            Toast.error('Gagal memuat data anggota. Silakan refresh halaman.');
             return [];
         }
     },

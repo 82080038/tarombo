@@ -59,11 +59,6 @@ require_once __DIR__ . '/includes/menu.php';
 </div>
 
 <?php
-$extraJs = '';
+$extraJs = TAROMBO_BASE_URL . '/js/ceremonies.js';
 require_once __DIR__ . '/includes/footer.php';
 ?>
-<script>
-document.addEventListener('DOMContentLoaded', function () { loadCeremonies(); });
-// Inline ceremony JS from ceremonies.html
-async function loadCeremonies() { /* same as before */ }
-</script>

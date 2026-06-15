@@ -12,11 +12,19 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    // Enable console and network monitoring
+    ignoreHTTPSErrors: true,
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        // Capture console logs
+        contextOptions: {
+          javaScriptEnabled: true,
+        },
+      },
     },
   ],
 })

@@ -19,7 +19,7 @@ $(document).ready(function () {
         const p1 = $('#person1Select').val();
         const p2 = $('#person2Select').val();
         if (p1 && p2) calculatePartuturan(p1, p2);
-        else alert('Pilih dua anggota untuk menghitung partuturan');
+        else Toast.warning('Pilih dua anggota untuk menghitung partuturan');
     });
 
     // Relation tabs

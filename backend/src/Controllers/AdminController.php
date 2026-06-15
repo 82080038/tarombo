@@ -103,7 +103,7 @@ class AdminController
             return $this->jsonResponse($response, ['success' => false, 'error' => 'User not found'], 404);
         }
 
-        if (!in_array($role, ['guest', 'user', 'verified', 'tetua', 'admin'])) {
+        if (!in_array($role, ['guest', 'user', 'verified', 'tetua', 'punguan_admin', 'admin'])) {
             return $this->jsonResponse($response, ['success' => false, 'error' => 'Invalid role'], 400);
         }
 

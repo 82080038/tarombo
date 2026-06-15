@@ -15,10 +15,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class PersonController
 {
-    public function __construct(
-        private PartuturanService $partuturanService,
-        private AuditService $auditService
-    ) {}
+    private PartuturanService $partuturanService;
+    private AuditService $auditService;
+
+    public function __construct()
+    {
+        $this->partuturanService = new PartuturanService();
+        $this->auditService = new AuditService();
+    }
     
     /**
      * List all persons with pagination
@@ -26,7 +30,7 @@ class PersonController
      */
     public function index(Request $request, Response $response): Response
     {
-        $query = Person::with(['marga', 'father', 'mother'])
+        $query = Person::with(['marga', 'turunanMarga', 'asalUsulMarga', 'father', 'mother'])
             ->active();
         
         // Filter by marga
@@ -34,16 +38,23 @@ class PersonController
             $query->byMarga((int) $margaId);
         }
         
-        // Filter by search
+        // Filter by search (search in nama, nama_depan, and marga)
         if ($search = $request->getQueryParams()['search'] ?? null) {
-            $query->where('nama', 'like', "%$search%");
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%$search%")
+                  ->orWhere('nama_depan', 'like', "%$search%");
+            });
         }
         
         $perPage = (int) ($request->getQueryParams()['per_page'] ?? 20);
         $persons = $query->paginate($perPage);
         
         $response->getBody()->write(json_encode([
-            'data' => $persons->items(),
+            'data' => array_map(function($person) {
+                $data = $person->toArray();
+                $data['full_name'] = $person->full_name;
+                return $data;
+            }, $persons->items()),
             'meta' => [
                 'current_page' => $persons->currentPage(),
                 'last_page' => $persons->lastPage(),
@@ -65,6 +76,8 @@ class PersonController
         
         $person = Person::with([
             'marga',
+            'turunanMarga',
+            'asalUsulMarga',
             'father',
             'mother',
             'childrenAsFather',
@@ -84,7 +97,7 @@ class PersonController
         }
         
         $response->getBody()->write(json_encode([
-            'data' => $person->toArray(),
+            'data' => array_merge($person->toArray(), ['full_name' => $person->full_name]),
             'relationships' => [
                 'tulang' => $person->getTulang(),
                 'namboru' => $person->getNamboru(),

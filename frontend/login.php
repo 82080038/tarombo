@@ -20,6 +20,8 @@ require_once __DIR__ . '/includes/menu.php';
                     <div class="text-center">
                         <p class="mb-2">Quick Login (Dev)</p>
                         <button class="btn btn-sm btn-outline-secondary" onclick="quickLogin('user')">User</button>
+                        <button class="btn btn-sm btn-outline-info" onclick="quickLogin('verified')">Verified</button>
+                        <button class="btn btn-sm btn-outline-success" onclick="quickLogin('punguan_admin')">Punguan Admin</button>
                         <button class="btn btn-sm btn-outline-warning" onclick="quickLogin('admin')">Admin</button>
                     </div>
                     <hr>
@@ -38,14 +40,14 @@ function quickLogin(role) {
         body: JSON.stringify({role: role})
     }).then(r => r.json()).then(data => {
         if (data.success) { localStorage.setItem('tarombo_token', data.data.access_token); window.location.href = '<?= TAROMBO_BASE_URL ?>/'; }
-        else { alert('Quick login gagal'); }
+        else { Toast.error('Quick login gagal'); }
     });
 }
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     API.login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value).then(r => {
         if (r && r.success) window.location.href = '<?= TAROMBO_BASE_URL ?>/';
-        else alert('Login gagal');
+        else Toast.error('Login gagal');
     });
 });
 </script>

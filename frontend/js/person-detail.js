@@ -34,6 +34,7 @@ function loadPersonDetail(id) {
 }
 
 function renderPersonDetail(person) {
+    const fullName = person.full_name || person.nama;
     const margaName = person.marga ? person.marga.nama : '-';
     const subSuku = person.marga ? person.marga.sub_suku : '-';
     const genderIcon = person.jenis_kelamin === 'L' ? '♂️' : '♀️';
@@ -45,8 +46,8 @@ function renderPersonDetail(person) {
         year: 'numeric', month: 'long', day: 'numeric'
     }) : '-';
 
-    const fatherName = person.father ? person.father.nama : '-';
-    const motherName = person.mother ? person.mother.nama : '-';
+    const fatherName = person.father ? (person.father.full_name || person.father.nama) : '-';
+    const motherName = person.mother ? (person.mother.full_name || person.mother.nama) : '-';
 
     // Siblings
     const siblings = [];
@@ -56,7 +57,7 @@ function renderPersonDetail(person) {
         });
     }
     const siblingsHtml = siblings.length
-        ? `<ul class="list-unstyled mb-0">${siblings.map(s => `<li>${s.nama} ${s.jenis_kelamin === 'L' ? '(L)' : '(P)'}</li>`).join('')}</ul>`
+        ? `<ul class="list-unstyled mb-0">${siblings.map(s => `<li>${s.full_name || s.nama} ${s.jenis_kelamin === 'L' ? '(L)' : '(P)'}</li>`).join('')}</ul>`
         : '-';
 
     $('#personDetail').html(`
@@ -69,7 +70,7 @@ function renderPersonDetail(person) {
                 <div class="card-body">
                     <table class="table table-sm">
                         <tr><th style="width:30%">ID</th><td>${person.id}</td></tr>
-                        <tr><th>Nama</th><td><strong>${person.nama}</strong></td></tr>
+                        <tr><th>Nama Lengkap</th><td><strong>${fullName}</strong></td></tr>
                         <tr><th>Marga</th><td>${margaName} <span class="text-muted">(${subSuku})</span></td></tr>
                         <tr><th>Jenis Kelamin</th><td>${genderIcon} ${genderText}</td></tr>
                         <tr><th>Tanggal Lahir</th><td>${birthDate}</td></tr>
@@ -94,12 +95,12 @@ function renderPersonDetail(person) {
             ${person.relationships && person.relationships.tulang && person.relationships.tulang.length ? `
             <div class="card mb-3">
                 <div class="card-header"><h5 class="mb-0">Tulang (Saudara Laki Ibu)</h5></div>
-                <div class="card-body"><ul class="list-group list-group-flush">${person.relationships.tulang.map(t => `<li class="list-group-item py-1">${t.nama}</li>`).join('')}</ul></div>
+                <div class="card-body"><ul class="list-group list-group-flush">${person.relationships.tulang.map(t => `<li class="list-group-item py-1">${t.full_name || t.nama}</li>`).join('')}</ul></div>
             </div>` : ''}
             ${person.relationships && person.relationships.namboru && person.relationships.namboru.length ? `
             <div class="card">
                 <div class="card-header"><h5 class="mb-0">Namboru (Saudara Perempuan Ayah)</h5></div>
-                <div class="card-body"><ul class="list-group list-group-flush">${person.relationships.namboru.map(n => `<li class="list-group-item py-1">${n.nama}</li>`).join('')}</ul></div>
+                <div class="card-body"><ul class="list-group list-group-flush">${person.relationships.namboru.map(n => `<li class="list-group-item py-1">${n.full_name || n.nama}</li>`).join('')}</ul></div>
             </div>` : ''}
         </div>
     `);

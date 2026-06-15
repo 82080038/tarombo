@@ -62,8 +62,9 @@ $(document).ready(function () {
         const gender = $('#filterGender').val();
 
         const filtered = allPersons.filter(person => {
+            const fullName = person.full_name || person.nama;
             const matchSearch = !search ||
-                person.nama.toLowerCase().includes(search) ||
+                fullName.toLowerCase().includes(search) ||
                 (person.marga && person.marga.nama.toLowerCase().includes(search));
             const matchMarga = !margaId || (person.marga_id === parseInt(margaId));
             const matchSubSuku = !subSuku || (person.marga && person.marga.sub_suku === subSuku);
@@ -84,6 +85,7 @@ $(document).ready(function () {
         }
 
         persons.forEach(function (person) {
+            const fullName = person.full_name || person.nama;
             const margaName = person.marga ? person.marga.nama : '-';
             const genderIcon = person.jenis_kelamin === 'L' ? '♂️' : '♀️';
             const birthDate = person.tanggal_lahir ? new Date(person.tanggal_lahir).toLocaleDateString('id-ID') : '-';
@@ -91,7 +93,7 @@ $(document).ready(function () {
             tbody.append(`
                 <tr>
                     <td>${person.id}</td>
-                    <td><a href="person-detail.html?id=${person.id}">${person.nama}</a></td>
+                    <td><a href="person-detail.html?id=${person.id}">${fullName}</a></td>
                     <td>${margaName}</td>
                     <td>${genderIcon} ${person.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'}</td>
                     <td>${birthDate}</td>
@@ -116,27 +118,36 @@ $(document).ready(function () {
         const formData = $('#addPersonForm').serializeArray();
         const personData = {};
         formData.forEach(function (item) { personData[item.name] = item.value; });
+        
+        // Basic validation
+        if (!personData.nama || !personData.marga_id || !personData.jenis_kelamin) {
+            Toast.warning('Nama, Marga, dan Jenis Kelamin wajib diisi');
+            return;
+        }
+        
         API.createPerson(personData).then(function (result) {
             if (result) {
-                alert('Anggota berhasil ditambahkan!');
+                Toast.success('Anggota berhasil ditambahkan!');
                 $('#addPersonModal').modal('hide');
                 $('#addPersonForm')[0].reset();
                 loadPersons();
             } else {
-                alert('Gagal menambahkan anggota');
+                Toast.error('Gagal menambahkan anggota. Silakan coba lagi.');
             }
         });
     }
 
     function deletePerson(id) {
-        API.deletePerson(id).then(function (success) {
-            if (success) {
-                alert('Anggota berhasil dihapus!');
-                loadPersons();
-            } else {
-                alert('Gagal menghapus anggota');
-            }
-        });
+        if (confirm('Apakah Anda yakin ingin menghapus anggota ini? Tindakan ini tidak dapat dibatalkan.')) {
+            API.deletePerson(id).then(function (success) {
+                if (success) {
+                    Toast.success('Anggota berhasil dihapus!');
+                    loadPersons();
+                } else {
+                    Toast.error('Gagal menghapus anggota. Silakan coba lagi.');
+                }
+            });
+        }
     }
 
     function debounce(fn, ms) {

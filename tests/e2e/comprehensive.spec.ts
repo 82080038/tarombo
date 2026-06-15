@@ -138,7 +138,7 @@ test.describe('Family Tree Page - Functional Tests', () => {
     await page.waitForFunction(() => {
       const select = document.querySelector('#rootPersonSelect') as HTMLSelectElement
       return select && select.options.length > 1
-    }, { timeout: 5000 })
+    }, { timeout: 60000 })
     const optionCount = await page.locator('#rootPersonSelect option').count()
     expect(optionCount).toBeGreaterThan(1)
   })

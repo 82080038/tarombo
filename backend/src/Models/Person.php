@@ -17,7 +17,10 @@ class Person extends Model
     
     protected $fillable = [
         'nama',
+        'nama_depan',
         'marga_id',
+        'id_turunan_marga',
+        'id_asal_usul',
         'jenis_kelamin',
         'father_id',
         'mother_id',
@@ -42,6 +45,24 @@ class Person extends Model
     public function marga(): BelongsTo
     {
         return $this->belongsTo(Marga::class);
+    }
+    
+    /**
+     * Turunan Marga (descendant marga) relationship
+     * For tracking marga hierarchy
+     */
+    public function turunanMarga(): BelongsTo
+    {
+        return $this->belongsTo(Marga::class, 'id_turunan_marga');
+    }
+    
+    /**
+     * Asal Usul Marga (origin marga) relationship
+     * For verifying marga origin
+     */
+    public function asalUsulMarga(): BelongsTo
+    {
+        return $this->belongsTo(Marga::class, 'id_asal_usul');
     }
     
     /**
@@ -164,10 +185,12 @@ class Person extends Model
     
     /**
      * Get full name with marga
+     * Uses nama_depan if available, otherwise nama
      */
     public function getFullNameAttribute(): string
     {
-        return $this->nama . ' ' . $this->marga?->nama;
+        $nama = $this->nama_depan ?? $this->nama;
+        return trim($nama . ' ' . $this->marga?->nama);
     }
     
     /**

@@ -4,10 +4,10 @@
  * Base URLs and shared settings
  */
 if (!defined('TAROMBO_BASE_URL')) {
-    define('TAROMBO_BASE_URL', '/tarombo');
+    define('TAROMBO_BASE_URL', getenv('TAROMBO_BASE_URL') ?: '/tarombo');
 }
 if (!defined('API_BASE_URL')) {
-    define('API_BASE_URL', '/tarombo/api/v1');
+    define('API_BASE_URL', getenv('API_BASE_URL') ?: '/tarombo/api/v1');
 }
 if (!defined('FRONTEND_URL')) {
     define('FRONTEND_URL', TAROMBO_BASE_URL);

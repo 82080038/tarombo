@@ -3,14 +3,18 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     initAuthNav();
+    applyRBAC();
 });
 
 async function initAuthNav() {
     const navContainer = document.querySelector('.navbar-nav');
     if (!navContainer) return;
 
-    // Check if already initialized
-    if (document.getElementById('authNavItem')) return;
+    // Remove existing auth nav item if present to allow updates
+    const existingAuthNav = document.getElementById('authNavItem');
+    if (existingAuthNav) {
+        existingAuthNav.remove();
+    }
 
     const token = localStorage.getItem('tarombo_token');
     const li = document.createElement('li');
@@ -63,4 +67,36 @@ async function initAuthNav() {
         <a class="nav-link" href="login.html">Masuk</a>
     `;
     navContainer.appendChild(li);
+}
+
+function applyRBAC() {
+    const token = localStorage.getItem('tarombo_token');
+    
+    // Hide elements that require authentication
+    const authRequiredElements = document.querySelectorAll('.auth-required');
+    authRequiredElements.forEach(element => {
+        if (!token) {
+            element.style.display = 'none';
+        }
+    });
+    
+    // Hide admin-only elements
+    const adminRequiredElements = document.querySelectorAll('.admin-required');
+    adminRequiredElements.forEach(element => {
+        if (!token) {
+            element.style.display = 'none';
+            return;
+        }
+        
+        // Decode JWT to check role
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            // Allow admin, punguan_admin, and tetua
+            if (!['admin', 'punguan_admin', 'tetua'].includes(payload.role)) {
+                element.style.display = 'none';
+            }
+        } catch (e) {
+            element.style.display = 'none';
+        }
+    });
 }

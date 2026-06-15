@@ -15,7 +15,16 @@ use App\Controllers\DocumentController;
 use App\Controllers\MakamController;
 use App\Controllers\GeoController;
 use App\Controllers\AdminController;
+use App\Controllers\AssetController;
+use App\Controllers\FinanceController;
+use App\Controllers\EventController;
+use App\Controllers\HeritageController;
+use App\Controllers\CommunicationController;
+use App\Controllers\LocationController;
+use App\Controllers\HistoryController;
+use App\Controllers\BackupController;
 use App\Middleware\AuthMiddleware;
+use App\Middleware\AdminMiddleware;
 use App\Middleware\CorsMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -88,10 +97,10 @@ $app->get('/api/v1/partuturan/calculate', [PersonController::class, 'calculatePa
 
 // Admin routes
 $app->group('/api/v1/admin', function ($group) {
-    $group->get('/statistics', [AdminController::class, 'statistics'])->add(AuthMiddleware::class);
-    $group->get('/users', [AdminController::class, 'users'])->add(AuthMiddleware::class);
-    $group->put('/users/{id}/role', [AdminController::class, 'updateUserRole'])->add(AuthMiddleware::class);
-});
+    $group->get('/statistics', [AdminController::class, 'statistics']);
+    $group->get('/users', [AdminController::class, 'users']);
+    $group->put('/users/{id}/role', [AdminController::class, 'updateUserRole']);
+})->add(new AdminMiddleware())->add(new AuthMiddleware());
 
 // Ceremony routes
 $app->group('/api/v1/ceremonies', function ($group) {
@@ -128,6 +137,92 @@ $app->group('/api/v1/geo', function ($group) {
     $group->get('/persons', [GeoController::class, 'personLocations']);
     $group->get('/makam', [GeoController::class, 'makamLocations']);
     $group->get('/statistics', [GeoController::class, 'statistics']);
+});
+
+// Asset routes (Harta Warisan)
+$app->group('/api/v1/assets', function ($group) {
+    $group->get('', [AssetController::class, 'index']);
+    $group->get('/{id}', [AssetController::class, 'show']);
+    $group->post('', [AssetController::class, 'store'])->add(AuthMiddleware::class);
+    $group->put('/{id}', [AssetController::class, 'update'])->add(AuthMiddleware::class);
+    $group->delete('/{id}', [AssetController::class, 'destroy'])->add(AuthMiddleware::class);
+    $group->post('/{id}/transfer', [AssetController::class, 'transferOwnership'])->add(AuthMiddleware::class);
+    $group->get('/{id}/inheritance', [AssetController::class, 'getInheritanceHistory']);
+});
+
+// Finance routes (Keuangan Punguan)
+$app->group('/api/v1/finance', function ($group) {
+    $group->get('/transactions', [FinanceController::class, 'getTransactions']);
+    $group->post('/transactions', [FinanceController::class, 'createTransaction'])->add(AuthMiddleware::class);
+    $group->put('/transactions/{id}/verify', [FinanceController::class, 'verifyTransaction'])->add(AuthMiddleware::class);
+    $group->get('/budgets', [FinanceController::class, 'getBudgets']);
+    $group->post('/budgets', [FinanceController::class, 'createBudget'])->add(AuthMiddleware::class);
+    $group->get('/iuran', [FinanceController::class, 'getIuran']);
+    $group->post('/iuran', [FinanceController::class, 'createIuran'])->add(AuthMiddleware::class);
+    $group->put('/iuran/{id}/pay', [FinanceController::class, 'payIuran'])->add(AuthMiddleware::class);
+    $group->get('/summary', [FinanceController::class, 'getFinancialSummary']);
+});
+
+// Event routes (Acara & Kalender)
+$app->group('/api/v1/events', function ($group) {
+    $group->get('', [EventController::class, 'index']);
+    $group->get('/{id}', [EventController::class, 'show']);
+    $group->post('', [EventController::class, 'store'])->add(AuthMiddleware::class);
+    $group->put('/{id}', [EventController::class, 'update'])->add(AuthMiddleware::class);
+    $group->delete('/{id}', [EventController::class, 'destroy'])->add(AuthMiddleware::class);
+    $group->post('/{id}/attendees', [EventController::class, 'addAttendee'])->add(AuthMiddleware::class);
+    $group->put('/{id}/attendees/{attendee_id}', [EventController::class, 'updateAttendee'])->add(AuthMiddleware::class);
+});
+
+// Heritage routes (Sejarah & Tradisi)
+$app->group('/api/v1/heritage', function ($group) {
+    $group->get('/traditions', [HeritageController::class, 'getTraditions']);
+    $group->post('/traditions', [HeritageController::class, 'createTradition'])->add(AuthMiddleware::class);
+    $group->get('/stories', [HeritageController::class, 'getStories']);
+    $group->post('/stories', [HeritageController::class, 'createStory'])->add(AuthMiddleware::class);
+    $group->put('/stories/{id}/publish', [HeritageController::class, 'publishStory'])->add(AuthMiddleware::class);
+});
+
+// Communication routes (Komunikasi)
+$app->group('/api/v1/communication', function ($group) {
+    $group->get('/announcements', [CommunicationController::class, 'getAnnouncements']);
+    $group->post('/announcements', [CommunicationController::class, 'createAnnouncement'])->add(AuthMiddleware::class);
+    $group->put('/announcements/{id}/publish', [CommunicationController::class, 'publishAnnouncement'])->add(AuthMiddleware::class);
+    $group->get('/messages', [CommunicationController::class, 'getMessages'])->add(AuthMiddleware::class);
+    $group->post('/messages', [CommunicationController::class, 'createMessage'])->add(AuthMiddleware::class);
+    $group->get('/notifications', [CommunicationController::class, 'getNotifications'])->add(AuthMiddleware::class);
+    $group->put('/notifications/{id}/read', [CommunicationController::class, 'markNotificationRead'])->add(AuthMiddleware::class);
+    $group->put('/notifications/mark-all-read', [CommunicationController::class, 'markAllNotificationsRead'])->add(AuthMiddleware::class);
+    $group->get('/notifications/unread-count', [CommunicationController::class, 'getUnreadCount'])->add(AuthMiddleware::class);
+});
+
+// Location routes (Perluasan Tempat)
+$app->group('/api/v1/locations', function ($group) {
+    $group->get('/rumah', [LocationController::class, 'index']);
+    $group->get('/rumah/{id}', [LocationController::class, 'show']);
+    $group->post('/rumah', [LocationController::class, 'store'])->add(AuthMiddleware::class);
+    $group->put('/rumah/{id}', [LocationController::class, 'update'])->add(AuthMiddleware::class);
+    $group->delete('/rumah/{id}', [LocationController::class, 'destroy'])->add(AuthMiddleware::class);
+});
+
+// History & Cultural Preservation routes
+$app->group('/api/v1/history', function ($group) {
+    $group->get('/{type}/{id}', [HistoryController::class, 'getEntityHistory']);
+    $group->get('/timeline/{type}/{id}', [HistoryController::class, 'getEntityTimeline']);
+    $group->get('/oral-traditions', [HistoryController::class, 'getOralTraditions']);
+    $group->post('/oral-traditions', [HistoryController::class, 'createOralTradition'])->add(AuthMiddleware::class);
+    $group->get('/traditional-knowledge', [HistoryController::class, 'getTraditionalKnowledge']);
+    $group->post('/traditional-knowledge', [HistoryController::class, 'createTraditionalKnowledge'])->add(AuthMiddleware::class);
+    $group->get('/cultural-sites', [HistoryController::class, 'getCulturalSites']);
+    $group->post('/cultural-sites', [HistoryController::class, 'createCulturalSite'])->add(AuthMiddleware::class);
+});
+
+// Backup routes (Export/Import)
+$app->group('/api/v1/backup', function ($group) {
+    $group->get('/export', [BackupController::class, 'export'])->add(AuthMiddleware::class);
+    $group->get('/export/{type}', [BackupController::class, 'exportEntity'])->add(AuthMiddleware::class);
+    $group->post('/import', [BackupController::class, 'import'])->add(AuthMiddleware::class);
+    $group->get('/history', [BackupController::class, 'getBackupHistory'])->add(AuthMiddleware::class);
 });
 
 // Run app

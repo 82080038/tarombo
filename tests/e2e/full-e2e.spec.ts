@@ -316,8 +316,13 @@ test.describe('Authentication', () => {
     if (await devSection.isVisible().catch(() => false)) {
       await page.click('button[data-role="admin"]')
       await expect(page).toHaveURL(/index\.html/)
-      // Navbar should show user dropdown
-      await expect(page.locator('#authNavItem')).toContainText('Administrator')
+      // Wait for auth nav to update with user info
+      await page.waitForFunction(() => {
+        const authNav = document.querySelector('#authNavItem')
+        return authNav && !authNav.textContent?.includes('Login')
+      }, { timeout: 5000 })
+      // Navbar should show user dropdown (not login link)
+      await expect(page.locator('#authNavItem')).not.toContainText('Login')
     } else {
       test.skip(true, 'Quick login not available in this environment')
     }

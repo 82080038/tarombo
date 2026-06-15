@@ -9,9 +9,20 @@ $base = '/tarombo';
 $relative = substr($path, strlen($base));
 $relative = ltrim($relative, '/');
 
+// Backend API requests - let them be handled by backend/index.php directly
+if (strpos($relative, 'backend/public/') === 0) {
+    $backendFile = __DIR__ . '/' . $relative;
+    if (file_exists($backendFile) && is_file($backendFile)) {
+        require $backendFile;
+        exit;
+    }
+}
+
 // API requests - proxy to backend PHP server on port 8000
 if (strpos($relative, 'api/') === 0) {
-    $url = 'http://localhost:8000/' . $relative;
+    // Remove 'backend/public/' prefix if present
+    $apiPath = preg_replace('#^backend/public/#', '', $relative);
+    $url = 'http://localhost:8000/' . $apiPath;
     if (!empty($_SERVER['QUERY_STRING'])) {
         $url .= '?' . $_SERVER['QUERY_STRING'];
     }

@@ -29,9 +29,13 @@ require_once __DIR__ . '/includes/menu.php';
 <script>
 document.getElementById('registerForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    API.register(document.getElementById('regEmail').value, document.getElementById('regPassword').value, document.getElementById('regName').value).then(r => {
-        if (r && r.success) { alert('Berhasil daftar!'); window.location.href = '<?= TAROMBO_BASE_URL ?>/login'; }
-        else alert('Daftar gagal');
+    API.register({
+        email: document.getElementById('regEmail').value,
+        password: document.getElementById('regPassword').value,
+        nama: document.getElementById('regName').value
+    }).then(r => {
+        if (r && r.success) { Toast.success('Berhasil daftar!'); window.location.href = '<?= TAROMBO_BASE_URL ?>/login'; }
+        else Toast.error('Daftar gagal');
     });
 });
 </script>
