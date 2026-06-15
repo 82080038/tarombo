@@ -39,8 +39,9 @@ tarombo/
 
 ### Prerequisites
 - PHP 8.1+ with Composer
-- Python 3+ (for static file server)
-- MySQL 8.0+
+- MySQL 8.0+ (XAMPP or native)
+- Node.js 18+ with npm
+- Modern web browser
 
 ### 1. Setup Environment
 
@@ -66,15 +67,25 @@ php -S localhost:8000 -t public/
 
 **Frontend:**
 ```bash
-cd frontend
-python3 -m http.server 8080
-# Atau gunakan web server lain (Apache, Nginx, dll)
+# Option 1: Use Apache (recommended for production)
+# Access via: http://localhost/tarombo/
+
+# Option 2: Use PHP built-in server
+php -S localhost:8080
+
+# Option 3: Use Apache with XAMPP
+# Place project in /opt/lampp/htdocs/tarombo
+# Access via: http://localhost/tarombo/
 ```
 
 **Database:**
 ```bash
-# Using MySQL
-mysql -u root -p < database/init.sql
+# Using MySQL with XAMPP
+mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/schema.sql
+mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/seeds.sql
+
+# Or import latest export
+mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/tarombo_export_*.sql
 ```
 
 ---
@@ -283,11 +294,15 @@ npx tsc --noEmit
 
 ### Database Issues
 ```bash
-# Check connection
-docker exec -it tarombo-mysql mysql -u root -p
+# Check connection with XAMPP
+mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock
 
 # Reset data
-mysql -u root -p tarombo < database/schema.sql
+mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/schema.sql
+mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/seeds.sql
+
+# Export current database
+mysqldump -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo > database/tarombo_export_$(date +%Y%m%d_%H%M%S).sql
 ```
 
 ---
