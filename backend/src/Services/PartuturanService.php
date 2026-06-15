@@ -105,7 +105,7 @@ class PartuturanService
                 return $to->jenis_kelamin === 'L' ? 'father' : 'mother';
             }
             if ($from->id === $to->father_id || $from->id === $to->mother_id) {
-                return $from->jenis_kelamin === 'L' ? 'son' : 'daughter';
+                return $to->jenis_kelamin === 'L' ? 'son' : 'daughter';
             }
             // Spouse
             return 'spouse';

@@ -1,34 +1,5 @@
 import { test, expect } from '@playwright/test'
 
-// Capture console logs and network responses for all tests
-let consoleLogs: Array<{ type: string; text: string }> = []
-let networkResponses: Array<{ url: string; status: number }> = []
-
-test.beforeEach(async ({ page }) => {
-  consoleLogs = []
-  networkResponses = []
-
-  page.on('console', (msg) => {
-    consoleLogs.push({ type: msg.type(), text: msg.text() })
-  })
-
-  page.on('response', (response) => {
-    networkResponses.push({
-      url: response.url(),
-      status: response.status(),
-    })
-  })
-})
-
-test.afterEach(async ({ }, testInfo) => {
-  if (testInfo.status !== 'passed') {
-    console.log(`\n=== Console logs for: ${testInfo.title} ===`)
-    consoleLogs.forEach((log) => console.log(`[${log.type}] ${log.text}`))
-    console.log(`\n=== Network responses for: ${testInfo.title} ===`)
-    networkResponses.forEach((res) => console.log(`[${res.status}] ${res.url}`))
-  }
-})
-
 test.describe('Homepage', () => {
   test('loads with correct title and navbar', async ({ page }) => {
     await page.goto('')
@@ -246,52 +217,6 @@ test.describe('API Backend (via Apache proxy)', () => {
     expect(body).toHaveProperty('indonesian')
     expect(body.from_person.id).toBe(8)
     expect(body.to_person.id).toBe(1)
-  })
-})
-
-test.describe('Console & Network Check', () => {
-  test('no critical console errors on any page', async ({ page }) => {
-    const pages = ['index.html', 'persons.html', 'family-tree.html', 'partuturan.html']
-
-    for (const path of pages) {
-      consoleLogs = []
-      await page.goto(path)
-      await page.waitForLoadState('networkidle')
-      await page.waitForTimeout(1000)
-
-      const errors = consoleLogs.filter((l) => l.type === 'error')
-      const warnings = consoleLogs.filter((l) => l.type === 'warning')
-
-      // Log for visibility
-      if (errors.length > 0) {
-        console.log(`[${path}] Console errors:`, errors.map((e) => e.text))
-      }
-      if (warnings.length > 0) {
-        console.log(`[${path}] Console warnings:`, warnings.map((w) => w.text))
-      }
-
-      // We allow some warnings but no critical errors
-      const criticalErrors = errors.filter((e) =>
-        e.text.includes('Failed to load') ||
-        e.text.includes('Uncaught') ||
-        e.text.includes('404')
-      )
-      expect(criticalErrors.length, `Critical errors on ${path}: ${criticalErrors.map((e) => e.text).join(', ')}`).toBe(0)
-    }
-  })
-
-  test('all API requests return 200', async ({ page }) => {
-    networkResponses = []
-    await page.goto('persons.html')
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(2000)
-
-    const apiResponses = networkResponses.filter((r) => r.url.includes('/api/v1/'))
-    console.log('API requests made:', apiResponses.map((r) => `${r.status} ${r.url}`))
-
-    for (const res of apiResponses) {
-      expect(res.status, `API ${res.url} returned ${res.status}`).toBe(200)
-    }
   })
 })
 

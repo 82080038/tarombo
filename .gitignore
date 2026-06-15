@@ -46,3 +46,4 @@ backend/logs/
 tmp/
 temp/
 *.tmp
+backend/.phpunit.cache/
