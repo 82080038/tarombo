@@ -141,8 +141,8 @@ class AuditService
                 'created_at' => now()
             ]);
         } catch (\Exception $e) {
-            // Throw exception to let middleware handle it
-            throw new \Exception('Failed to log security event: ' . $e->getMessage());
+            // Silently fail to avoid breaking the application
+            error_log('Failed to log security event: ' . $e->getMessage());
         }
     }
     

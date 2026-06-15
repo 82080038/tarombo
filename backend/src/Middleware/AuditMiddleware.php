@@ -58,8 +58,8 @@ class AuditMiddleware
         // Check if this is a sensitive endpoint
         $isSensitive = $this->isSensitiveEndpoint($uri, $method);
         
-        if ($isSensitive) {
-            // Log access attempt - wrap in try-catch to prevent errors
+        // Only log sensitive endpoints, not all GET requests
+        if ($isSensitive && $method !== 'GET') {
             try {
                 $this->auditService->logSecurityEvent(
                     'API_ACCESS',
@@ -100,6 +100,7 @@ class AuditMiddleware
             }
         }
         
+        // Return response without any modification
         return $response;
     }
 
@@ -111,11 +112,8 @@ class AuditMiddleware
             }
         }
         
-        // Also log all write operations
-        if (in_array($method, ['POST', 'PUT', 'DELETE'])) {
-            return true;
-        }
-        
+        // Only consider write operations as sensitive
+        // GET requests are not considered sensitive to avoid response duplication
         return false;
     }
 }
