@@ -228,5 +228,15 @@ $app->group('/api/v1/backup', function ($group) {
     $group->get('/history', [BackupController::class, 'getBackupHistory'])->add(AuthMiddleware::class);
 });
 
+// Report routes (Export/Import Reports)
+$app->group('/api/v1/reports', function ($group) {
+    $group->get('/persons/excel', [ReportController::class, 'exportPersonsExcel'])->add(AuthMiddleware::class);
+    $group->get('/persons/csv', [ReportController::class, 'exportPersonsCsv'])->add(AuthMiddleware::class);
+    $group->get('/family-tree/pdf', [ReportController::class, 'exportFamilyTreePdf'])->add(AuthMiddleware::class);
+    $group->get('/marriages/excel', [ReportController::class, 'exportMarriagesExcel'])->add(AuthMiddleware::class);
+    $group->get('/statistics/pdf', [ReportController::class, 'exportStatisticsPdf'])->add(AuthMiddleware::class);
+});
+
 // Run app
+$app->run();
 $app->run();
