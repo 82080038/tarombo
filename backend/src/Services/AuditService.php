@@ -116,4 +116,62 @@ class AuditService
             'created_at' => now()
         ]);
     }
+    
+    /**
+     * Log security event for comprehensive audit logging
+     */
+    public function logSecurityEvent(
+        string $eventType,
+        ?int $userId,
+        string $uri,
+        string $method,
+        string $ipAddress,
+        ?string $userAgent = null,
+        ?array $metadata = null
+    ): void {
+        try {
+            DB::table('security_audit_log')->insert([
+                'event_type' => $eventType,
+                'user_id' => $userId,
+                'uri' => $uri,
+                'method' => $method,
+                'ip_address' => $ipAddress,
+                'user_agent' => $userAgent,
+                'metadata' => $metadata ? json_encode($metadata) : null,
+                'created_at' => now()
+            ]);
+        } catch (\Exception $e) {
+            // Throw exception to let middleware handle it
+            throw new \Exception('Failed to log security event: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Get security audit logs
+     */
+    public function getSecurityLogs(?int $userId = null, ?string $eventType = null, int $limit = 100): array
+    {
+        $query = DB::table('security_audit_log');
+        
+        if ($userId) {
+            $query->where('user_id', $userId);
+        }
+        
+        if ($eventType) {
+            $query->where('event_type', $eventType);
+        }
+        
+        return $query->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get()
+            ->toArray();
+    }
+    
+    /**
+     * Get entity name from model
+     */
+    private function getEntityName(Model $entity): string
+    {
+        return get_class($entity);
+    }
 }

@@ -26,6 +26,8 @@ use App\Controllers\BackupController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\AdminMiddleware;
 use App\Middleware\CorsMiddleware;
+use App\Middleware\AuditMiddleware;
+use App\Middleware\RateLimitMiddleware;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -39,6 +41,7 @@ $app = AppFactory::create();
 
 // Add middleware
 $app->add(new CorsMiddleware());
+$app->add(new AuditMiddleware());
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(true, true, true);
@@ -58,8 +61,8 @@ $app->get('/', function ($request, $response) {
 
 // API Routes - Auth
 $app->group('/api/v1/auth', function ($group) {
-    $group->post('/login', [AuthController::class, 'login']);
-    $group->post('/register', [AuthController::class, 'register']);
+    $group->post('/login', [AuthController::class, 'login'])->add(new RateLimitMiddleware());
+    $group->post('/register', [AuthController::class, 'register'])->add(new RateLimitMiddleware());
     $group->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
     $group->get('/me', [AuthController::class, 'me'])->add(AuthMiddleware::class);
     $group->post('/quick-login', [AuthController::class, 'quickLogin']);

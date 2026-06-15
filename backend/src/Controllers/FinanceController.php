@@ -51,6 +51,7 @@ class FinanceController
     public function createTransaction(Request $request, Response $response): Response
     {
         $body = $request->getParsedBody() ?? [];
+        $currentUserId = $request->getAttribute('user_id');
         
         $transaction = Transaction::create([
             'punguan_id' => $body['punguan_id'],
@@ -61,16 +62,17 @@ class FinanceController
             'deskripsi' => $body['deskripsi'] ?? null,
             'person_id' => $body['person_id'] ?? null,
             'bukti_dokumen_id' => $body['bukti_dokumen_id'] ?? null,
-            'status' => 'pending'
+            'status' => 'pending',
+            'created_by' => $currentUserId
         ]);
         
-        // Log to entity history
-        $this->auditService->log('created', $transaction, $request->getAttribute('user_id'), null, $transaction->toArray());
+        // Log to entity history with SoD context
+        $this->auditService->log('created', $transaction, $currentUserId, null, $transaction->toArray(), 'Transaction created - requires verification by different user');
         
         return $this->jsonResponse($response, [
             'success' => true,
             'data' => $transaction,
-            'message' => 'Transaction created successfully'
+            'message' => 'Transaction created successfully - requires verification'
         ], 201);
     }
     
