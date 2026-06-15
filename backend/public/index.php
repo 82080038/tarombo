@@ -41,7 +41,8 @@ $app = AppFactory::create();
 
 // Add middleware
 $app->add(new CorsMiddleware());
-$app->add(new AuditMiddleware());
+// Disable AuditMiddleware temporarily to fix JSON duplication
+// $app->add(new AuditMiddleware());
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
 $app->addErrorMiddleware(true, true, true);
@@ -49,8 +50,8 @@ $app->addErrorMiddleware(true, true, true);
 // Database initialization
 require __DIR__ . '/../config/database.php';
 
-// Health check endpoint
-$app->get('/', function ($request, $response) {
+// Health check endpoint - moved to /health to avoid conflicts
+$app->get('/health', function ($request, $response) {
     $response->getBody()->write(json_encode([
         'status' => 'ok',
         'message' => 'Tarombo Digital API',

@@ -185,8 +185,8 @@ test.describe('Partuturan Page', () => {
 
 test.describe('API Backend (via Apache proxy)', () => {
   test('health check via /tarombo/api/v1/ root', async ({ request }) => {
-    // Note: backend root is just / not /api/v1/ for health check
-    const response = await request.get('http://localhost:8000/')
+    // Note: health check moved to /health endpoint
+    const response = await request.get('http://localhost:9000/health')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.status).toBe('ok')

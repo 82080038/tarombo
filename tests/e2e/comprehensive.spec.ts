@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test.describe('API Backend Tests', () => {
   test('API health check responds correctly', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/')
+    const response = await request.get('http://localhost:9000/health')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.status).toBe('ok')
@@ -10,7 +10,7 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/persons returns list with meta', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons')
+    const response = await request.get('http://localhost:9000/api/v1/persons')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body).toHaveProperty('data')
@@ -20,7 +20,7 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/marga returns clan list', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/marga')
+    const response = await request.get('http://localhost:9000/api/v1/marga')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body).toHaveProperty('data')
@@ -28,7 +28,7 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/persons/1 returns person detail with relationships', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons/1')
+    const response = await request.get('http://localhost:9000/api/v1/persons/1')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.data.id).toBe(1)
@@ -37,14 +37,14 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/persons/9999 returns 404', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons/9999')
+    const response = await request.get('http://localhost:9000/api/v1/persons/9999')
     expect(response.status()).toBe(404)
     const body = await response.json()
     expect(body.code).toBe('PERSON_NOT_FOUND')
   })
 
   test('GET /api/v1/partuturan/calculate?from=8&to=1 returns relationship', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/partuturan/calculate?from=8&to=1')
+    const response = await request.get('http://localhost:9000/api/v1/partuturan/calculate?from=8&to=1')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body).toHaveProperty('from_person')
@@ -57,12 +57,12 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/partuturan/calculate missing params returns 400', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/partuturan/calculate')
+    const response = await request.get('http://localhost:9000/api/v1/partuturan/calculate')
     expect(response.status()).toBe(400)
   })
 
   test('GET /api/v1/persons with search filter', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons?search=John')
+    const response = await request.get('http://localhost:9000/api/v1/persons?search=John')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.data.length).toBeGreaterThan(0)
@@ -70,7 +70,7 @@ test.describe('API Backend Tests', () => {
   })
 
   test('POST /api/v1/persons without auth returns 401', async ({ request }) => {
-    const response = await request.post('http://localhost:8000/api/v1/persons', {
+    const response = await request.post('http://localhost:9000/api/v1/persons', {
       data: { nama: 'Test', marga_id: 1, jenis_kelamin: 'L' }
     })
     expect(response.status()).toBe(401)
