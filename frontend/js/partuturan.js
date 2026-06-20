@@ -64,18 +64,19 @@ $(document).ready(function () {
     function calculatePartuturan(p1, p2) {
         $('#partuturanResult').html('<div class="text-center"><div class="spinner-border"></div></div>');
         API.calculatePartuturan(p1, p2).then(function (r) {
-            if (r) {
-                const pathHtml = r.path && r.path.length > 1 ? `<p><strong>Jalur:</strong> ${r.path.map(p => p.nama).join(' → ')}</p>` : '';
+            if (r && r.success && r.data) {
+                const d = r.data;
+                const pathHtml = d.path && d.path.length > 1 ? `<p><strong>Jalur:</strong> ${d.path.map(p => p.nama).join(' → ')}</p>` : '';
                 $('#partuturanResult').html(`
                     <div class="alert alert-success">
                         <h6>Hasil Perhitungan Partuturan</h6>
                         <hr>
-                        <p><strong>Dari:</strong> ${r.from_person?.nama || 'Unknown'}</p>
-                        <p><strong>Ke:</strong> ${r.to_person?.nama || 'Unknown'}</p>
+                        <p><strong>Dari:</strong> ${d.from_person?.nama || 'Unknown'}</p>
+                        <p><strong>Ke:</strong> ${d.to_person?.nama || 'Unknown'}</p>
                         <hr>
-                        <p><strong>Istilah Batak:</strong> <span class="badge bg-primary fs-6">${r.relationship || '-'}</span></p>
-                        <p><strong>Dalam Bahasa Indonesia:</strong> ${r.indonesian || '-'}</p>
-                        <p><strong>Penjelasan:</strong> ${r.explanation || '-'}</p>
+                        <p><strong>Istilah Batak:</strong> <span class="badge bg-primary fs-6">${d.relationship || '-'}</span></p>
+                        <p><strong>Dalam Bahasa Indonesia:</strong> ${d.indonesian || '-'}</p>
+                        <p><strong>Penjelasan:</strong> ${d.explanation || '-'}</p>
                         ${pathHtml}
                     </div>
                 `);

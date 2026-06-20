@@ -17,7 +17,13 @@ require_once __DIR__ . '/includes/menu.php';
         <div class="col-md-3"><select class="form-select" id="filterStatus"><option value="">Semua Status</option><option value="active">Aktif</option><option value="divorced">Cerai</option></select></div>
         <div class="col-md-4"><input type="text" class="form-control" id="searchMarriage" placeholder="Cari perkawinan..."></div>
     </div>
-    <div id="marriagesList"><p class="text-muted">Memuat...</p></div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead><tr><th>Suami</th><th>Istri</th><th>Tanggal</th><th>Tahapan</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="marriagesTable"><tr><td colspan="6" class="text-center">Memuat...</td></tr></tbody>
+        </table>
+    </div>
+    <div id="marriagePagination"></div>
 </div>
 
 <div class="modal fade" id="addMarriageModal" tabindex="-1">

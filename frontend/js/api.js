@@ -109,7 +109,7 @@ const API = {
             // ignore
         }
         removeAuthToken();
-        window.location.href = 'login.html';
+        window.location.href = (window.TAROMBO_BASE_URL || '/tarombo') + '/login';
     },
 
     // Get all persons

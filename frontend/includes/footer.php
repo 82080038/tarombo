@@ -6,8 +6,8 @@
     </div>
 </footer>
 
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= TAROMBO_BASE_URL ?>/js/jquery.min.js"></script>
+<script src="<?= TAROMBO_BASE_URL ?>/js/bootstrap.bundle.min.js"></script>
 <script>window.TAROMBO_BASE_URL = '<?= TAROMBO_BASE_URL ?>';</script>
 <script src="<?= TAROMBO_BASE_URL ?>/js/toast.js"></script>
 <script src="<?= TAROMBO_BASE_URL ?>/js/api.js"></script>

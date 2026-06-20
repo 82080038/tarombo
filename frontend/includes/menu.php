@@ -41,10 +41,8 @@ $userRole = $currentUser['role'] ?? 'guest';
                         <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/history-tracking">📊 History Tracking</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/notifications">🔔 Notifikasi</a></li>
-                        <?php if (hasRole(['admin', 'superadmin'])): ?>
-                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/backup">💾 Backup & Restore</a></li>
-                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/admin">📊 Admin</a></li>
-                        <?php endif; ?>
+                        <li class="admin-required" style="display:none"><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/backup">💾 Backup & Restore</a></li>
+                        <li class="admin-required" style="display:none"><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/admin">📊 Admin</a></li>
                         <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/assistant">🤖 AI Assistant</a></li>
                     </ul>
                 </li>

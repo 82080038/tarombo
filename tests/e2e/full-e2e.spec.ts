@@ -8,40 +8,40 @@ test.describe('Homepage', () => {
     await expect(page.locator('.navbar-brand')).toContainText('Tarombo Digital')
 
     // Check navigation links exist (navbar only)
-    await expect(page.locator('.navbar-nav a[href="persons.html"]')).toBeVisible()
-    await expect(page.locator('.navbar-nav a[href="family-tree.html"]')).toBeVisible()
-    await expect(page.locator('.navbar-nav a[href="partuturan.html"]')).toBeVisible()
+    await expect(page.locator('.navbar-nav a[href*="persons"]')).toBeVisible()
+    await expect(page.locator('.navbar-nav a[href*="family-tree"]')).toBeVisible()
+    await expect(page.locator('.navbar-nav a[href*="partuturan"]')).toBeVisible()
   })
 
   test('navigates to all pages from homepage', async ({ page }) => {
     await page.goto('')
 
     // Persons
-    await page.click('a[href="persons.html"]')
-    await expect(page).toHaveURL(/persons\.html/)
+    await page.click('a[href*="persons"]')
+    await expect(page).toHaveURL(/persons/)
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
 
     // Back to home
     await page.goto('')
 
     // Family Tree
-    await page.click('a[href="family-tree.html"]')
-    await expect(page).toHaveURL(/family-tree\.html/)
+    await page.click('a[href*="family-tree"]')
+    await expect(page).toHaveURL(/family-tree/)
     await expect(page.locator('h1')).toContainText('Pohon Tarombo')
 
     // Back to home
     await page.goto('')
 
     // Partuturan
-    await page.click('a[href="partuturan.html"]')
-    await expect(page).toHaveURL(/partuturan\.html/)
+    await page.click('a[href*="partuturan"]')
+    await expect(page).toHaveURL(/partuturan/)
     await expect(page.locator('h1')).toContainText('Partuturan')
   })
 })
 
 test.describe('Persons Page', () => {
   test('loads and displays person data from API', async ({ page }) => {
-    await page.goto('persons.html')
+    await page.goto('persons')
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
 
     // Wait for API data to load (table rows appear, not just loading row)
@@ -58,7 +58,7 @@ test.describe('Persons Page', () => {
   })
 
   test('search filter works', async ({ page }) => {
-    await page.goto('persons.html')
+    await page.goto('persons')
     await page.waitForSelector('#personsTable tr', { timeout: 10000 })
 
     // Type search
@@ -72,8 +72,13 @@ test.describe('Persons Page', () => {
     expect(firstRow).toContain('John')
   })
 
-  test('add person modal opens', async ({ page }) => {
-    await page.goto('persons.html')
+  test('add person modal opens', async ({ page, request }) => {
+    const loginRes = await request.post('http://localhost:8000/api/v1/auth/quick-login', { data: { role: 'admin' } })
+    const loginBody = await loginRes.json()
+    await page.goto('')
+    await page.evaluate((token) => localStorage.setItem('tarombo_token', token), loginBody.data.access_token)
+    await page.goto('persons')
+    await page.waitForTimeout(1000)
     await page.click('button[data-bs-target="#addPersonModal"]')
     await expect(page.locator('#addPersonModal')).toBeVisible()
 
@@ -88,13 +93,14 @@ test.describe('Persons Page', () => {
 
     // Close modal
     await page.click('#addPersonModal .btn-close')
+    await page.waitForTimeout(500)
     await expect(page.locator('#addPersonModal')).not.toBeVisible()
   })
 })
 
 test.describe('Family Tree Page', () => {
   test('loads and populates root person select', async ({ page }) => {
-    await page.goto('family-tree.html')
+    await page.goto('family-tree')
     await expect(page.locator('h1')).toContainText('Pohon Tarombo')
 
     // Wait for select to populate
@@ -108,7 +114,7 @@ test.describe('Family Tree Page', () => {
   })
 
   test('selecting person renders family tree', async ({ page }) => {
-    await page.goto('family-tree.html')
+    await page.goto('family-tree')
 
     await page.waitForFunction(() => {
       const select = document.querySelector('#rootPersonSelect') as HTMLSelectElement
@@ -128,7 +134,7 @@ test.describe('Family Tree Page', () => {
 
 test.describe('Partuturan Page', () => {
   test('loads and populates person selects', async ({ page }) => {
-    await page.goto('partuturan.html')
+    await page.goto('partuturan')
     await expect(page.locator('h1')).toContainText('Partuturan')
 
     // Wait for selects to populate
@@ -145,7 +151,7 @@ test.describe('Partuturan Page', () => {
   })
 
   test('calculate button shows alert when no person selected', async ({ page }) => {
-    await page.goto('partuturan.html')
+    await page.goto('partuturan')
 
     page.on('dialog', async (dialog) => {
       expect(dialog.message()).toContain('Pilih dua anggota')
@@ -156,7 +162,7 @@ test.describe('Partuturan Page', () => {
   })
 
   test('calculates partuturan between related persons', async ({ page }) => {
-    await page.goto('partuturan.html')
+    await page.goto('partuturan')
 
     await page.waitForFunction(() => {
       const s1 = document.querySelector('#person1Select') as HTMLSelectElement
@@ -186,7 +192,7 @@ test.describe('Partuturan Page', () => {
 test.describe('API Backend (via Apache proxy)', () => {
   test('health check via /tarombo/api/v1/ root', async ({ request }) => {
     // Note: health check moved to /health endpoint
-    const response = await request.get('http://localhost:9000/health')
+    const response = await request.get('http://localhost:8000/health')
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.status).toBe('ok')
@@ -213,34 +219,34 @@ test.describe('API Backend (via Apache proxy)', () => {
     const response = await request.get('api/v1/partuturan/calculate?from=8&to=1')
     expect(response.status()).toBe(200)
     const body = await response.json()
-    expect(body).toHaveProperty('relationship')
-    expect(body).toHaveProperty('indonesian')
-    expect(body.from_person.id).toBe(8)
-    expect(body.to_person.id).toBe(1)
+    expect(body.success).toBe(true)
+    expect(body.data).toHaveProperty('relationship')
+    expect(body.data).toHaveProperty('indonesian')
+    expect(body.data.from_person.id).toBe(8)
+    expect(body.data.to_person.id).toBe(1)
   })
 })
 
 test.describe('Authentication', () => {
   test('login page loads with quick login dev buttons', async ({ page }) => {
-    await page.goto('login.html')
-    await expect(page.locator('h2')).toContainText('Tarombo Digital')
+    await page.goto('login')
     await expect(page.locator('#loginForm')).toBeVisible()
-    await expect(page.locator('button[type="submit"]')).toContainText('Masuk')
+    await expect(page.locator('button[type="submit"]')).toContainText('Login')
 
-    // Quick login should be visible on localhost
-    const devSection = page.locator('#devSection')
-    if (await devSection.isVisible().catch(() => false)) {
-      await expect(page.locator('button[data-role="admin"]')).toBeVisible()
-      await expect(page.locator('button[data-role="user"]')).toBeVisible()
+    // Quick login buttons should be visible on localhost
+    const adminBtn = page.locator('button:has-text("Admin")')
+    if (await adminBtn.isVisible().catch(() => false)) {
+      await expect(page.locator('button:has-text("User")')).toBeVisible()
     }
   })
 
   test('quick login works and redirects to homepage', async ({ page }) => {
-    await page.goto('login.html')
-    const devSection = page.locator('#devSection')
-    if (await devSection.isVisible().catch(() => false)) {
-      await page.click('button[data-role="admin"]')
-      await expect(page).toHaveURL(/index\.html/)
+    await page.goto('login')
+    // PHP login page has quick login buttons with role text
+    const adminBtn = page.locator('button:has-text("Admin")')
+    if (await adminBtn.isVisible().catch(() => false)) {
+      await adminBtn.click()
+      await expect(page).toHaveURL(/tarombo/)
       // Wait for auth nav to update with user info
       await page.waitForFunction(() => {
         const authNav = document.querySelector('#authNavItem')
@@ -254,8 +260,8 @@ test.describe('Authentication', () => {
   })
 
   test('register page loads', async ({ page }) => {
-    await page.goto('register.html')
-    await expect(page.locator('h2')).toContainText('Tarombo Digital')
+    await page.goto('register')
+    await expect(page.locator('.card-header')).toContainText('Daftar')
     await expect(page.locator('#registerForm')).toBeVisible()
   })
 
@@ -301,7 +307,7 @@ test.describe('Authentication', () => {
 
 test.describe('Marriages Page', () => {
   test('loads marriage data and displays progress', async ({ page }) => {
-    await page.goto('marriages.html')
+    await page.goto('marriages')
     await expect(page.locator('h2')).toContainText('Perkawinan')
     // Wait for table to populate
     await page.waitForFunction(() => {
@@ -315,14 +321,14 @@ test.describe('Marriages Page', () => {
 
 test.describe('Ceremonies Page', () => {
   test('loads ceremony page', async ({ page }) => {
-    await page.goto('ceremonies.html')
+    await page.goto('ceremonies')
     await expect(page.locator('h2')).toContainText('Acara Adat')
   })
 })
 
 test.describe('Persons Page Filters', () => {
   test('filter by gender works', async ({ page }) => {
-    await page.goto('persons.html')
+    await page.goto('persons')
     await page.waitForFunction(() => {
       const tbody = document.querySelector('#personsTable')
       return tbody && tbody.children.length > 0 && !tbody.textContent?.includes('Memuat')
@@ -335,7 +341,7 @@ test.describe('Persons Page Filters', () => {
 
 test.describe('AI Assistant Page', () => {
   test('loads and answers knowledge question', async ({ page }) => {
-    await page.goto('assistant.html')
+    await page.goto('assistant')
     await expect(page.locator('.card-header')).toContainText('AI Tarombo Assistant')
     // Click suggestion chip
     await page.click('.suggestion-chip:has-text("Dalihan Na Tolu")')
@@ -347,7 +353,7 @@ test.describe('AI Assistant Page', () => {
 
 test.describe('Punguan Page', () => {
   test('loads punguan data', async ({ page }) => {
-    await page.goto('punguan.html')
+    await page.goto('punguan')
     await expect(page.locator('h2')).toContainText('Punguan')
     await page.waitForFunction(() => {
       const el = document.getElementById('punguanList')
@@ -360,14 +366,14 @@ test.describe('Punguan Page', () => {
 
 test.describe('Documents Page', () => {
   test('loads documents page', async ({ page }) => {
-    await page.goto('documents.html')
+    await page.goto('documents')
     await expect(page.locator('h2')).toContainText('Dokumen')
   })
 })
 
 test.describe('Makam Page', () => {
   test('loads makam page with map', async ({ page }) => {
-    await page.goto('makam.html')
+    await page.goto('makam')
     await expect(page.locator('h2')).toContainText('Makam')
     await expect(page.locator('#makamMap')).toBeVisible()
   })
@@ -375,7 +381,7 @@ test.describe('Makam Page', () => {
 
 test.describe('Map Page', () => {
   test('loads family map page', async ({ page }) => {
-    await page.goto('map.html')
+    await page.goto('map')
     await expect(page.locator('h2')).toContainText('Peta Keluarga')
     await expect(page.locator('#familyMap')).toBeVisible()
   })

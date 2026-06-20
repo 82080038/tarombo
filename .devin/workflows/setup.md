@@ -3,11 +3,12 @@ description: Setup dan menjalankan aplikasi Tarombo Digital
 ---
 
 ## Stack
-- **Backend**: PHP 8.2 + Slim 4 + Eloquent ORM (port 8000)
+- **Backend**: PHP 8.2+ + Slim 4 + Eloquent ORM (port 8000)
 - **Frontend**: PHP + HTML/jQuery/Bootstrap 5 + PHP Includes (header/menu/footer)
-- **Database**: MariaDB 10.4 via XAMPP
-- **Test**: Playwright (Node.js, di /tests/)
+- **Database**: MariaDB 10.4 via XAMPP (38 tables)
+- **Test**: Playwright (Node.js, di /tests/) — 65 tests, all passing
 - **Map**: Leaflet.js + OpenStreetMap
+- **JS/CSS deps**: jQuery, Bootstrap 5 — served locally (no CDN)
 
 ## Arsitektur Frontend (PHP Includes)
 
@@ -40,15 +41,11 @@ Router root (`index.php`) akan mencoba `.php` terlebih dahulu sebelum fallback k
 sudo /opt/lampp/lampp start
 ```
 
-2. Buat database dan jalankan semua migrations
+2. Buat database dan import full schema+data
 ```
 /opt/lampp/bin/mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS tarombo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-# Jalankan schema utama
-/opt/lampp/bin/mysql -u root -proot tarombo < /opt/lampp/htdocs/tarombo/database/schema_updated.sql
-# Jalankan semua migrations berurutan
-for f in /opt/lampp/htdocs/tarombo/database/migrations/*.sql; do
-  /opt/lampp/bin/mysql -u root -proot tarombo < "$f"
-done
+# Import full schema + data (38 tables)
+/opt/lampp/bin/mysql -u root -proot tarombo < /opt/lampp/htdocs/tarombo/database/tarombo_full_export.sql
 ```
 
 3. Buat .env backend
@@ -73,21 +70,28 @@ cd /opt/lampp/htdocs/tarombo/tests && npm install
 /opt/lampp/bin/php -c /opt/lampp/etc/php.ini -S 0.0.0.0:8000 -t /opt/lampp/htdocs/tarombo/backend/public /opt/lampp/htdocs/tarombo/backend/public/index.php
 ```
 
-## Menjalankan Frontend (port 8080) — Static Fallback
-
-```
-cd /opt/lampp/htdocs/tarombo/frontend && python3 -m http.server 8080
-```
-
 ## Akses via Apache/XAMPP (PHP Includes Aktif)
 
 Buka browser ke: `http://localhost/tarombo/` — Apache akan mengeksekusi PHP includes.
+Frontend diproxy melalui `index.php` yang melayani file PHP dan mem-proxy API ke port 8000.
 
-## Menjalankan Tests Playwright (headed)
+## Menjalankan Tests Playwright
 
 ```
-cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed
+# Headless (CI)
+cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --project=chromium
+
+# Headed (debugging)
+cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed --project=chromium
+
+# Specific test
+npx playwright test -g "modal" --project=chromium
+
+# HTML report
+npx playwright show-report
 ```
+
+Hasil terakhir: **65 passed, 0 failed, 1 skipped** (36s)
 
 ## Konfigurasi Database
 - Host: localhost
@@ -193,14 +197,28 @@ cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed
 
 ### Testing
 ```
+# Backend unit tests
 cd /opt/lampp/htdocs/tarombo/backend && vendor/bin/phpunit --testsuite Unit
 cd /opt/lampp/htdocs/tarombo/backend && vendor/bin/phpunit --filter SecurityFixesTest
-cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed
+
+# E2E tests (Playwright)
+cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --project=chromium
 ```
 
 ### Database Info
 - 38 tabel, 25+ FK constraints, 14+ indexes
 - FULLTEXT indexes pada persons.nama, marga.nama, stories.judil
-- Migration files: 001-012 di database/migrations/
-- Lihat ANALISIS_MENDALAM_APLIKASI.md untuk status perbaikan
-- Lihat DEVELOPER_GUIDE.md untuk panduan lengkap
+- Data: 10 persons, 5+ marga, users dengan bcrypt hash
+- Password default: `password` (admin@tarombo.digital)
+- Quick login tersedia di localhost: Admin, User, Verified, Punguan Admin
+
+### Bug Fixes Applied
+- ReportController import di `backend/public/index.php`
+- RBAC client-side: `admin-required` & `auth-required` elements di-show/hide via `auth-nav.js`
+- Menu admin items: hapus PHP `hasRole()`, ganti dengan CSS class `admin-required`
+- jQuery & Bootstrap: download local, hapus CDN dependency
+- `partuturan.js`: fix API response parsing (`r.data` bukan `r` langsung)
+- `marriages.php`: tambah table dengan `#marriagesTable` untuk match dengan `marriages.js`
+- `auth-nav.js` & `api.js`: fix logout redirect ke `TAROMBO_BASE_URL/login`
+- `login.html`: fix redirect setelah login ke base URL
+- Test fixes: port 9000→8000, `.html`→PHP routes, URL assertions, API response format

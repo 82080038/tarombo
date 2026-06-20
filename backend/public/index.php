@@ -23,6 +23,7 @@ use App\Controllers\CommunicationController;
 use App\Controllers\LocationController;
 use App\Controllers\HistoryController;
 use App\Controllers\BackupController;
+use App\Controllers\ReportController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\AdminMiddleware;
 use App\Middleware\CorsMiddleware;

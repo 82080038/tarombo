@@ -49,7 +49,7 @@ async function initAuthNav() {
                     document.getElementById('logoutBtn').addEventListener('click', function (e) {
                         e.preventDefault();
                         localStorage.removeItem('tarombo_token');
-                        window.location.href = 'login.html';
+                        window.location.href = (window.TAROMBO_BASE_URL || '/tarombo') + '/login';
                     });
                     return;
                 }
@@ -64,35 +64,39 @@ async function initAuthNav() {
 
     // Show login/register links
     li.innerHTML = `
-        <a class="nav-link" href="login.html">Masuk</a>
+        <a class="nav-link" href="${window.TAROMBO_BASE_URL || '/tarombo'}/login">Masuk</a>
     `;
     navContainer.appendChild(li);
 }
 
 function applyRBAC() {
     const token = localStorage.getItem('tarombo_token');
-    
-    // Hide elements that require authentication
+
+    // Show/hide elements that require authentication
     const authRequiredElements = document.querySelectorAll('.auth-required');
     authRequiredElements.forEach(element => {
-        if (!token) {
+        if (token) {
+            element.style.display = '';
+        } else {
             element.style.display = 'none';
         }
     });
-    
-    // Hide admin-only elements
+
+    // Show/hide admin-only elements
     const adminRequiredElements = document.querySelectorAll('.admin-required');
     adminRequiredElements.forEach(element => {
         if (!token) {
             element.style.display = 'none';
             return;
         }
-        
+
         // Decode JWT to check role
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             // Allow admin, punguan_admin, and tetua
-            if (!['admin', 'punguan_admin', 'tetua'].includes(payload.role)) {
+            if (['admin', 'punguan_admin', 'tetua'].includes(payload.role)) {
+                element.style.display = '';
+            } else {
                 element.style.display = 'none';
             }
         } catch (e) {
