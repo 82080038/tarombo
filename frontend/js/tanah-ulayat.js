@@ -1,4 +1,4 @@
-const API = {
+const TanahulayatAPI = {
     tanah: {
         getAll: (params) => fetch(`${API_BASE_URL}/tanah-ulayat?${new URLSearchParams(params)}`).then(r => r.json()),
         getById: (id) => fetch(`${API_BASE_URL}/tanah-ulayat/${id}`).then(r => r.json()),
@@ -43,7 +43,7 @@ function loadTanah() {
         status: document.getElementById('filterStatus').value
     };
     
-    API.tanah.getAll(params)
+    TanahulayatAPI.tanah.getAll(params)
         .then(response => {
             if (response.success) {
                 currentTanah = response.data;
@@ -103,7 +103,7 @@ function renderTanah(tanahList) {
 }
 
 function loadMarga() {
-    API.marga.getAll()
+    TanahulayatAPI.marga.getAll()
         .then(response => {
             if (response.success) {
                 const filterMargaSelect = document.getElementById('filterMarga');
@@ -117,7 +117,7 @@ function loadMarga() {
 }
 
 function loadPersons() {
-    API.persons.getAll()
+    TanahulayatAPI.persons.getAll()
         .then(response => {
             if (response.success) {
                 const pengelolaSelect = document.getElementById('tanahPengelola');
@@ -185,7 +185,7 @@ function saveTanah(e) {
         batas_wilayah: document.getElementById('tanahBatas').value
     };
     
-    const promise = id ? API.tanah.update(id, data) : API.tanah.create(data);
+    const promise = id ? TanahulayatAPI.tanah.update(id, data) : TanahulayatAPI.tanah.create(data);
     
     promise.then(response => {
         if (response.success) {
@@ -228,7 +228,7 @@ function editTanah(id) {
 
 function deleteTanah(id) {
     if (confirm('Apakah Anda yakin ingin menghapus tanah ulayat ini?')) {
-        API.tanah.delete(id)
+        TanahulayatAPI.tanah.delete(id)
             .then(response => {
                 if (response.success) {
                     Toast.success('Tanah ulayat berhasil dihapus');

@@ -1,4 +1,4 @@
-const API = {
+const AssetsAPI = {
     assets: {
         getAll: (params) => fetch(`${API_BASE_URL}/assets?${new URLSearchParams(params)}`).then(r => r.json()),
         getById: (id) => fetch(`${API_BASE_URL}/assets/${id}`).then(r => r.json()),
@@ -50,7 +50,7 @@ function loadAssets() {
         status: document.getElementById('filterStatus').value
     };
     
-    API.assets.getAll(params)
+    AssetsAPI.assets.getAll(params)
         .then(response => {
             if (response.success) {
                 currentAssets = response.data;
@@ -106,7 +106,7 @@ function renderAssets(assets) {
 }
 
 function loadMarga() {
-    API.marga.getAll()
+    AssetsAPI.marga.getAll()
         .then(response => {
             if (response.success) {
                 const margaSelect = document.getElementById('filterMarga');
@@ -120,7 +120,7 @@ function loadMarga() {
 }
 
 function loadPersons() {
-    API.persons.getAll()
+    AssetsAPI.persons.getAll()
         .then(response => {
             if (response.success) {
                 const pemilikSelect = document.getElementById('assetPemilik');
@@ -194,7 +194,7 @@ function saveAsset(e) {
         marga_id: document.getElementById('assetMarga').value || null
     };
     
-    const promise = id ? API.assets.update(id, data) : API.assets.create(data);
+    const promise = id ? AssetsAPI.assets.update(id, data) : AssetsAPI.assets.create(data);
     
     promise.then(response => {
         if (response.success) {
@@ -211,7 +211,7 @@ function saveAsset(e) {
 }
 
 function viewAsset(id) {
-    API.assets.getById(id)
+    AssetsAPI.assets.getById(id)
         .then(response => {
             if (response.success) {
                 const asset = response.data;
@@ -239,7 +239,7 @@ function editAsset(id) {
 
 function deleteAsset(id) {
     if (confirm('Apakah Anda yakin ingin menghapus aset ini?')) {
-        API.assets.delete(id)
+        AssetsAPI.assets.delete(id)
             .then(response => {
                 if (response.success) {
                     Toast.success('Aset berhasil dihapus');
@@ -278,7 +278,7 @@ function executeTransfer(e) {
         alasan_transfer: document.getElementById('transferAlasan').value
     };
     
-    API.assets.transfer(id, data)
+    AssetsAPI.assets.transfer(id, data)
         .then(response => {
             if (response.success) {
                 Toast.success('Kepemilikan aset berhasil ditransfer');

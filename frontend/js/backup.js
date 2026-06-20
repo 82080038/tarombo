@@ -1,4 +1,4 @@
-const API = {
+const BackupAPI = {
     backup: {
         export: (type) => fetch(`${API_BASE_URL}/backup/export${type !== 'all' ? '/' + type : ''}`, {
             headers: { 'Authorization': `Bearer ${getAuthToken()}` }
@@ -35,7 +35,7 @@ function exportData() {
     
     Toast.info('Memulai export data...');
     
-    API.backup.export(type)
+    BackupAPI.backup.export(type)
         .then(blob => {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -120,7 +120,7 @@ function importData() {
         }
     }, 200);
     
-    API.backup.import(file)
+    BackupAPI.backup.import(file)
         .then(response => {
             clearInterval(progressInterval);
             progress.style.width = '100%';
@@ -179,7 +179,7 @@ function closeImportModal() {
 function loadBackupHistory() {
     const container = document.getElementById('backupHistory');
     
-    API.backup.getHistory()
+    BackupAPI.backup.getHistory()
         .then(response => {
             if (response.success) {
                 if (response.data.length === 0) {

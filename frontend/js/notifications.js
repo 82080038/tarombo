@@ -1,4 +1,4 @@
-const API = {
+const NotificationsAPI = {
     notifications: {
         getAll: (params) => fetch(`${API_BASE_URL}/communication/notifications?${new URLSearchParams(params)}`, {
             headers: { 'Authorization': `Bearer ${getAuthToken()}` }
@@ -42,24 +42,24 @@ function setupEventListeners() {
 function loadNotifications() {
     const container = document.getElementById('notificationsList');
     const emptyState = document.getElementById('emptyState');
-    
+
     const params = {
         status: document.getElementById('filterStatus').value === 'all' ? null : document.getElementById('filterStatus').value,
         type: document.getElementById('filterType').value === 'all' ? null : document.getElementById('filterType').value,
         entity_type: document.getElementById('filterEntity').value === 'all' ? null : document.getElementById('filterEntity').value
     };
-    
+
     // Remove null params
     Object.keys(params).forEach(key => params[key] === null && delete params[key]);
-    
+
     container.innerHTML = `
         <div class="text-center py-8 text-gray-500">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <p class="mt-2">Memuat notifikasi...</p>
         </div>
     `;
-    
-    API.notifications.getAll(params)
+
+    NotificationsAPI.notifications.getAll(params)
         .then(response => {
             if (response.success) {
                 currentNotifications = response.data;
@@ -77,15 +77,15 @@ function loadNotifications() {
 function renderNotifications(notifications) {
     const container = document.getElementById('notificationsList');
     const emptyState = document.getElementById('emptyState');
-    
+
     if (notifications.length === 0) {
         container.innerHTML = '';
         emptyState.classList.remove('hidden');
         return;
     }
-    
+
     emptyState.classList.add('hidden');
-    
+
     container.innerHTML = notifications.map(n => `
         <div class="bg-white rounded-lg shadow p-4 border-l-4 ${getTypeBorderColor(n.type)} ${!n.is_read ? 'bg-blue-50' : ''} cursor-pointer hover:shadow-md transition-shadow" onclick="viewNotification(${n.id})">
             <div class="flex justify-between items-start">
@@ -112,7 +112,7 @@ function renderNotifications(notifications) {
 }
 
 function loadUnreadCount() {
-    API.notifications.getUnreadCount()
+    NotificationsAPI.notifications.getUnreadCount()
         .then(response => {
             if (response.success) {
                 document.getElementById('unreadCount').textContent = response.data.count;
@@ -126,10 +126,10 @@ function loadUnreadCount() {
 function viewNotification(id) {
     const notification = currentNotifications.find(n => n.id === id);
     if (!notification) return;
-    
+
     // Mark as read
     if (!notification.is_read) {
-        API.notifications.markAsRead(id)
+        NotificationsAPI.notifications.markAsRead(id)
             .then(response => {
                 if (response.success) {
                     notification.is_read = true;
@@ -138,7 +138,7 @@ function viewNotification(id) {
                 }
             });
     }
-    
+
     // Show modal
     const modal = document.getElementById('notificationModal');
     const modalType = document.getElementById('modalType');
@@ -150,19 +150,19 @@ function viewNotification(id) {
     const modalAction = document.getElementById('modalAction');
     const modalDate = document.getElementById('modalDate');
     const goToEntity = document.getElementById('goToEntity');
-    
+
     modalType.textContent = formatType(notification.type);
     modalType.className = `px-2 py-1 text-xs rounded-full ${getTypeColor(notification.type)}`;
     modalTitle.textContent = notification.title;
     modalContent.textContent = notification.message;
     modalDate.textContent = formatDate(notification.created_at);
-    
+
     if (notification.entity_type) {
         modalEntity.classList.remove('hidden');
         modalEntityType.textContent = formatEntityType(notification.entity_type);
         modalEntityId.textContent = notification.entity_id;
         modalAction.textContent = formatAction(notification.action);
-        
+
         goToEntity.classList.remove('hidden');
         goToEntity.onclick = () => {
             window.location.href = `/${notification.entity_type === 'person' ? 'person-detail' : notification.entity_type}.php?id=${notification.entity_id}`;
@@ -171,7 +171,7 @@ function viewNotification(id) {
         modalEntity.classList.add('hidden');
         goToEntity.classList.add('hidden');
     }
-    
+
     modal.classList.remove('hidden');
 }
 
@@ -180,7 +180,7 @@ function closeModal() {
 }
 
 function markAllAsRead() {
-    API.notifications.markAllAsRead()
+    NotificationsAPI.notifications.markAllAsRead()
         .then(response => {
             if (response.success) {
                 Toast.success('Semua notifikasi ditandai sebagai dibaca');
@@ -257,11 +257,11 @@ function formatDate(date) {
     const d = new Date(date);
     const now = new Date();
     const diff = now - d;
-    
+
     if (diff < 60000) return 'Baru saja';
     if (diff < 3600000) return `${Math.floor(diff / 60000)} menit lalu`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)} jam lalu`;
     if (diff < 604800000) return `${Math.floor(diff / 86400000)} hari lalu`;
-    
+
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
