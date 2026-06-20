@@ -26,13 +26,13 @@ fi
 
 echo -e "${BLUE}Step 2: Setting up Database...${NC}"
 cd ..
-if [ ! -f "database/init.sql" ]; then
-    echo "❌ database/init.sql not found"
+if [ ! -f "database/schema.sql" ]; then
+    echo "❌ database/schema.sql not found"
     exit 1
 fi
 
 echo "Importing database schema and seeds..."
-mysql -u root -p < database/init.sql
+mysql --socket=/opt/lampp/var/mysql/mysql.sock -u root -proot < database/schema.sql
 
 echo -e "${BLUE}Step 3: Setting up Playwright...${NC}"
 cd tests

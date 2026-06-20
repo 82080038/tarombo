@@ -19,7 +19,15 @@ if (strpos($relative, 'backend/public/') === 0) {
 }
 
 // API requests - proxy to backend PHP server on port 8000
+// BUT: frontend/api/ files are served directly (standalone PHP APIs)
 if (strpos($relative, 'api/') === 0) {
+    // Check if it's a frontend/api/ file first
+    $frontendApiFile = __DIR__ . '/frontend/' . $relative;
+    if (file_exists($frontendApiFile) && is_file($frontendApiFile)) {
+        require $frontendApiFile;
+        exit;
+    }
+    
     // Remove 'backend/public/' prefix if present
     $apiPath = preg_replace('#^backend/public/#', '', $relative);
     $url = 'http://localhost:8000/' . $apiPath;

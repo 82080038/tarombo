@@ -89,3 +89,70 @@ body {
 .alert {
     margin-top: 20px;
 }
+
+/* ===== DASHBOARD ===== */
+.dashboard-welcome {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+}
+
+.dashboard-welcome h2 {
+    color: white;
+    font-weight: 700;
+}
+
+.dashboard-welcome .badge {
+    font-size: 0.85rem;
+}
+
+.stat-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.feature-card {
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+}
+
+.feature-card .card-title {
+    font-weight: 600;
+}
+
+/* ===== NAVBAR RBAC ===== */
+.navbar .badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.navbar .dropdown-menu {
+    min-width: 220px;
+}

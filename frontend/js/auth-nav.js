@@ -1,5 +1,5 @@
 // Auth Navigation Manager
-// Automatically adds user dropdown or login link to navbar
+// Handles role-based menu visibility: guest, user, punguan_admin, admin, RBAC
 
 document.addEventListener('DOMContentLoaded', function () {
     initAuthNav();
@@ -10,7 +10,6 @@ async function initAuthNav() {
     const navContainer = document.querySelector('.navbar-nav');
     if (!navContainer) return;
 
-    // Remove existing auth nav item if present to allow updates
     const existingAuthNav = document.getElementById('authNavItem');
     if (existingAuthNav) {
         existingAuthNav.remove();
@@ -22,7 +21,6 @@ async function initAuthNav() {
     li.id = 'authNavItem';
 
     if (token) {
-        // Try to get user info
         try {
             const response = await fetch(API_BASE_URL + '/auth/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -31,16 +29,27 @@ async function initAuthNav() {
                 const result = await response.json();
                 if (result.success) {
                     const user = result.data;
+                    const roleLabels = {
+                        'admin': 'Administrator',
+                        'punguan_admin': 'Admin Punguan',
+                        'tetua': 'Tetua Adat',
+                        'verified': 'User Terverifikasi',
+                        'user': 'User',
+                        'guest': 'Tamu'
+                    };
+                    const roleLabel = roleLabels[user.role] || user.role;
                     li.innerHTML = `
                         <div class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
-                                👤 ${user.nama}
+                                <span class="badge bg-light text-primary me-1">${roleLabel}</span> 👤 ${user.nama}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><span class="dropdown-item-text text-muted small">${user.email}</span></li>
                                 <li><span class="dropdown-item-text text-muted small">Role: ${user.role}</span></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">Keluar</a></li>
+                                <li><a class="dropdown-item" href="${window.TAROMBO_BASE_URL || '/tarombo'}/dashboard">📊 Dashboard</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="#" id="logoutBtn">🚪 Keluar</a></li>
                             </ul>
                         </div>
                     `;
@@ -49,7 +58,7 @@ async function initAuthNav() {
                     document.getElementById('logoutBtn').addEventListener('click', function (e) {
                         e.preventDefault();
                         localStorage.removeItem('tarombo_token');
-                        window.location.href = (window.TAROMBO_BASE_URL || '/tarombo') + '/login';
+                        window.location.href = (window.TAROMBO_BASE_URL || '/tarombo') + '/';
                     });
                     return;
                 }
@@ -57,50 +66,59 @@ async function initAuthNav() {
         } catch (e) {
             // silent fail
         }
-
-        // Token invalid, show login link
         localStorage.removeItem('tarombo_token');
     }
 
-    // Show login/register links
+    // Show login/register links for guests
     li.innerHTML = `
-        <a class="nav-link" href="${window.TAROMBO_BASE_URL || '/tarombo'}/login">Masuk</a>
+        <a class="nav-link" href="${window.TAROMBO_BASE_URL || '/tarombo'}/login">🔑 Masuk</a>
     `;
     navContainer.appendChild(li);
 }
 
 function applyRBAC() {
     const token = localStorage.getItem('tarombo_token');
+    let role = 'guest';
 
-    // Show/hide elements that require authentication
-    const authRequiredElements = document.querySelectorAll('.auth-required');
-    authRequiredElements.forEach(element => {
-        if (token) {
-            element.style.display = '';
-        } else {
-            element.style.display = 'none';
-        }
-    });
-
-    // Show/hide admin-only elements
-    const adminRequiredElements = document.querySelectorAll('.admin-required');
-    adminRequiredElements.forEach(element => {
-        if (!token) {
-            element.style.display = 'none';
-            return;
-        }
-
-        // Decode JWT to check role
+    if (token) {
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            // Allow admin, punguan_admin, and tetua
-            if (['admin', 'punguan_admin', 'tetua'].includes(payload.role)) {
-                element.style.display = '';
-            } else {
-                element.style.display = 'none';
-            }
+            role = payload.role || 'user';
         } catch (e) {
-            element.style.display = 'none';
+            role = 'user';
         }
+    }
+
+    // --- auth-required: visible to any logged-in user ---
+    document.querySelectorAll('.auth-required').forEach(el => {
+        el.style.display = token ? '' : 'none';
+    });
+
+    // --- punguan-admin-only: visible to punguan_admin, tetua, admin ---
+    const punguanAdminRoles = ['punguan_admin', 'tetua', 'admin'];
+    document.querySelectorAll('.punguan-admin-only').forEach(el => {
+        el.style.display = punguanAdminRoles.includes(role) ? '' : 'none';
+    });
+
+    // --- admin-only: visible to admin only (system admin) ---
+    document.querySelectorAll('.admin-only').forEach(el => {
+        el.style.display = (role === 'admin') ? '' : 'none';
+    });
+
+    // --- admin-required: visible to admin, punguan_admin, tetua (legacy compatibility) ---
+    const adminRoles = ['admin', 'punguan_admin', 'tetua'];
+    document.querySelectorAll('.admin-required').forEach(el => {
+        el.style.display = adminRoles.includes(role) ? '' : 'none';
+    });
+
+    // --- verified-only: visible to verified, tetua, punguan_admin, admin ---
+    const verifiedRoles = ['verified', 'tetua', 'punguan_admin', 'admin'];
+    document.querySelectorAll('.verified-only').forEach(el => {
+        el.style.display = verifiedRoles.includes(role) ? '' : 'none';
+    });
+
+    // --- tetua-only: visible to tetua, admin ---
+    document.querySelectorAll('.tetua-only').forEach(el => {
+        el.style.display = ['tetua', 'admin'].includes(role) ? '' : 'none';
     });
 }

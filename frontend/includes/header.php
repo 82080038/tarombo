@@ -20,6 +20,18 @@ if (!isset($activePage)) $activePage = '';
     <style>
         .nav-link.active { font-weight: 600; }
         .dropdown-menu { min-width: 220px; }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
