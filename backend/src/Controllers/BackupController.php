@@ -12,6 +12,16 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class BackupController
 {
+    private const ALLOWED_TABLES = [
+        'marga', 'persons', 'marriages', 'marriage_stages',
+        'ceremonies', 'punguan', 'punguan_members', 'documents',
+        'makam', 'person_locations', 'forbidden_marga_pairs',
+        'marga_hierarchy', 'iuran', 'assets', 'inheritance_records',
+        'transactions', 'budgets', 'oral_traditions',
+        'traditional_knowledge', 'cultural_sites', 'entity_history',
+        'entity_timeline', 'entity_version', 'tanah_ulayat',
+        'events', 'notifications'
+    ];
     /**
      * Export all data as JSON
      */
@@ -82,6 +92,13 @@ class BackupController
     {
         $entityType = $args['type'];
         
+        if (!in_array($entityType, self::ALLOWED_TABLES)) {
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'error' => 'Invalid or forbidden table name'
+            ], 400);
+        }
+        
         try {
             $data = DB::table($entityType)->get()->toArray();
             
@@ -141,6 +158,11 @@ class BackupController
             foreach ($backup['data'] as $table => $rows) {
                 try {
                     if (empty($rows)) {
+                        continue;
+                    }
+                    
+                    if (!in_array($table, self::ALLOWED_TABLES)) {
+                        $errors[] = ['table' => $table, 'error' => 'Table not allowed'];
                         continue;
                     }
                     

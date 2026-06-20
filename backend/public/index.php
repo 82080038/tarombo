@@ -45,7 +45,8 @@ $app->add(new CorsMiddleware());
 // $app->add(new AuditMiddleware());
 $app->addBodyParsingMiddleware();
 $app->addRoutingMiddleware();
-$app->addErrorMiddleware(true, true, true);
+$isProduction = ($_ENV['APP_ENV'] ?? 'production') === 'production';
+$app->addErrorMiddleware(!$isProduction, !$isProduction, false);
 
 // Database initialization
 require __DIR__ . '/../config/database.php';
@@ -67,6 +68,9 @@ $app->group('/api/v1/auth', function ($group) {
     $group->post('/logout', [AuthController::class, 'logout'])->add(AuthMiddleware::class);
     $group->get('/me', [AuthController::class, 'me'])->add(AuthMiddleware::class);
     $group->post('/quick-login', [AuthController::class, 'quickLogin']);
+    $group->post('/forgot-password', [AuthController::class, 'forgotPassword'])->add(new RateLimitMiddleware());
+    $group->post('/reset-password', [AuthController::class, 'resetPassword'])->add(new RateLimitMiddleware());
+    $group->post('/verify-email', [AuthController::class, 'verifyEmail']);
 });
 
 // API Routes - Persons
@@ -238,6 +242,38 @@ $app->group('/api/v1/reports', function ($group) {
     $group->get('/statistics/pdf', [ReportController::class, 'exportStatisticsPdf'])->add(AuthMiddleware::class);
 });
 
+// GEDCOM routes (Genealogy data exchange)
+$app->group('/api/v1/gedcom', function ($group) {
+    $group->get('/export', function ($request, $response) {
+        $service = new \App\Services\GedcomService();
+        $gedcom = $service->export();
+        $response->getBody()->write($gedcom);
+        return $response
+            ->withHeader('Content-Type', 'text/plain')
+            ->withHeader('Content-Disposition', 'attachment; filename="tarombo_export.ged"');
+    })->add(AuthMiddleware::class);
+    $group->post('/import', function ($request, $response) {
+        $body = $request->getParsedBody() ?? [];
+        $content = $body['content'] ?? '';
+        if (empty($content)) {
+            $files = $request->getUploadedFiles();
+            if (isset($files['file'])) {
+                $content = $files['file']->getStream()->getContents();
+            }
+        }
+        if (empty($content)) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'error' => ['code' => 'EMPTY_CONTENT', 'message' => 'GEDCOM content or file required']
+            ]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+        $service = new \App\Services\GedcomService();
+        $stats = $service->import($content);
+        $response->getBody()->write(json_encode(['success' => true, 'data' => $stats]));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(AuthMiddleware::class);
+});
+
 // Run app
-$app->run();
 $app->run();

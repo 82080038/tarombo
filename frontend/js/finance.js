@@ -1,30 +1,30 @@
-const API = {
+const FinanceAPI = {
     finance: {
         getTransactions: (params) => fetch(`${API_BASE_URL}/finance/transactions?${new URLSearchParams(params)}`).then(r => r.json()),
         createTransaction: (data) => fetch(`${API_BASE_URL}/finance/transactions`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         verifyTransaction: (id) => fetch(`${API_BASE_URL}/finance/transactions/${id}/verify`, {
             method: 'PUT',
-            headers: { 'Authorization': `Bearer ${getToken()}` }
+            headers: { 'Authorization': `Bearer ${getAuthToken()}` }
         }).then(r => r.json()),
         getBudgets: (params) => fetch(`${API_BASE_URL}/finance/budgets?${new URLSearchParams(params)}`).then(r => r.json()),
         createBudget: (data) => fetch(`${API_BASE_URL}/finance/budgets`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         getIuran: (params) => fetch(`${API_BASE_URL}/finance/iuran?${new URLSearchParams(params)}`).then(r => r.json()),
         createIuran: (data) => fetch(`${API_BASE_URL}/finance/iuran`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         payIuran: (id, data) => fetch(`${API_BASE_URL}/finance/iuran/${id}/pay`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         getSummary: (params) => fetch(`${API_BASE_URL}/finance/summary?${new URLSearchParams(params)}`).then(r => r.json())
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadFinancialSummary() {
-    API.finance.getSummary({ tahun: new Date().getFullYear() })
+    FinanceAPI.finance.getSummary({ tahun: new Date().getFullYear() })
         .then(response => {
             if (response.success) {
                 document.getElementById('totalPemasukan').textContent = formatCurrency(response.data.pemasukan);
@@ -56,7 +56,7 @@ function loadFinancialSummary() {
 }
 
 function loadTransactions() {
-    API.finance.getTransactions({})
+    FinanceAPI.finance.getTransactions({})
         .then(response => {
             if (response.success) {
                 renderTransactions(response.data);
@@ -98,7 +98,7 @@ function renderTransactions(transactions) {
 }
 
 function loadBudgets() {
-    API.finance.getBudgets({ tahun: new Date().getFullYear() })
+    FinanceAPI.finance.getBudgets({ tahun: new Date().getFullYear() })
         .then(response => {
             if (response.success) {
                 renderBudgets(response.data);
@@ -129,7 +129,7 @@ function renderBudgets(budgets) {
 }
 
 function loadIuran() {
-    API.finance.getIuran({})
+    FinanceAPI.finance.getIuran({})
         .then(response => {
             if (response.success) {
                 renderIuran(response.data);
@@ -151,13 +151,13 @@ function renderIuran(iuranList) {
             <td class="px-6 py-4 whitespace-nowrap">${formatCurrency(i.jumlah)}</td>
             <td class="px-6 py-4 whitespace-nowrap">${formatPeriode(i.periode)}</td>
             <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 py-1 text-xs rounded-full ${i.status === 'lunas' ? 'bg-green-100 text-green-800' : i.status === 'terlambat' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                <span class="px-2 py-1 text-xs rounded-full ${i.status === 'verified' ? 'bg-green-100 text-green-800' : i.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
                     ${formatStatus(i.status)}
                 </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">${i.tanggal_bayar ? formatDate(i.tanggal_bayar) : '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${i.verified_at ? formatDate(i.verified_at) : '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap">
-                ${i.status !== 'lunas' ? `<button onclick="payIuran(${i.id})" class="text-green-600 hover:text-green-800 text-sm auth-required">Bayar</button>` : '-'}
+                ${i.status === 'pending' ? `<button onclick="payIuran(${i.id})" class="text-green-600 hover:text-green-800 text-sm auth-required">Bayar</button>` : '-'}
             </td>
         </tr>
     `).join('');
@@ -166,7 +166,7 @@ function renderIuran(iuranList) {
 }
 
 function loadPersons() {
-    API.persons.getAll()
+    FinanceAPI.persons.getAll()
         .then(response => {
             if (response.success) {
                 const select = document.getElementById('iuranPerson');
@@ -230,7 +230,7 @@ function saveTransaction(e) {
         deskripsi: document.getElementById('transactionDeskripsi').value
     };
     
-    API.finance.createTransaction(data)
+    FinanceAPI.finance.createTransaction(data)
         .then(response => {
             if (response.success) {
                 Toast.success('Transaksi berhasil ditambahkan');
@@ -244,7 +244,7 @@ function saveTransaction(e) {
 }
 
 function verifyTransaction(id) {
-    API.finance.verifyTransaction(id)
+    FinanceAPI.finance.verifyTransaction(id)
         .then(response => {
             if (response.success) {
                 Toast.success('Transaksi berhasil diverifikasi');
@@ -277,7 +277,7 @@ function saveBudget(e) {
         deskripsi: document.getElementById('budgetDeskripsi').value
     };
     
-    API.finance.createBudget(data)
+    FinanceAPI.finance.createBudget(data)
         .then(response => {
             if (response.success) {
                 Toast.success('Anggaran berhasil ditambahkan');
@@ -309,7 +309,7 @@ function saveIuran(e) {
         periode: document.getElementById('iuranPeriode').value
     };
     
-    API.finance.createIuran(data)
+    FinanceAPI.finance.createIuran(data)
         .then(response => {
             if (response.success) {
                 Toast.success('Iuran berhasil ditambahkan');
@@ -322,7 +322,7 @@ function saveIuran(e) {
 }
 
 function payIuran(id) {
-    API.finance.payIuran(id, { tanggal_bayar: new Date().toISOString().split('T')[0] })
+    FinanceAPI.finance.payIuran(id, { tanggal_bayar: new Date().toISOString().split('T')[0] })
         .then(response => {
             if (response.success) {
                 Toast.success('Iuran berhasil dibayar');

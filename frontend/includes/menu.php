@@ -16,43 +16,43 @@ $userRole = $currentUser['role'] ?? 'guest';
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link <?= navActive('index') ?>" href="index.html">Beranda</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('persons') ?>" href="persons.html">Dongan Tubu</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('family-tree') ?>" href="family-tree.html">Pohon Tarombo</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('partuturan') ?>" href="partuturan.html">Partuturan</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('marriages') ?>" href="marriages.html">Perkawinan</a></li>
-                <li class="nav-item"><a class="nav-link <?= navActive('ceremonies') ?>" href="ceremonies.html">Acara Adat</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('index') ?>" href="<?= TAROMBO_BASE_URL ?>/">Beranda</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('persons') ?>" href="<?= TAROMBO_BASE_URL ?>/persons">Dongan Tubu</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('family-tree') ?>" href="<?= TAROMBO_BASE_URL ?>/family-tree">Pohon Tarombo</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('partuturan') ?>" href="<?= TAROMBO_BASE_URL ?>/partuturan">Partuturan</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('marriages') ?>" href="<?= TAROMBO_BASE_URL ?>/marriages">Perkawinan</a></li>
+                <li class="nav-item"><a class="nav-link <?= navActive('ceremonies') ?>" href="<?= TAROMBO_BASE_URL ?>/ceremonies">Acara Adat</a></li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Lainnya</a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="punguan.html">🏛️ Punguan</a></li>
-                        <li><a class="dropdown-item" href="documents.html">📁 Dokumen</a></li>
-                        <li><a class="dropdown-item" href="makam.html">🪦 Makam</a></li>
-                        <li><a class="dropdown-item" href="map.html">🗺️ Peta Keluarga</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/punguan">🏛️ Punguan</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/documents">📁 Dokumen</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/makam">🪦 Makam</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/map">🗺️ Peta Keluarga</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="assets.php">🏛️ Harta Warisan</a></li>
-                        <li><a class="dropdown-item" href="finance.php">💰 Keuangan Punguan</a></li>
-                        <li><a class="dropdown-item" href="tanah-ulayat.php">🗺️ Tanah Ulayat</a></li>
-                        <li><a class="dropdown-item" href="events.php">📅 Acara & Kalender</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/assets">🏛️ Harta Warisan</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/finance">💰 Keuangan Punguan</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/tanah-ulayat">🗺️ Tanah Ulayat</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/events">📅 Acara & Kalender</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="oral-traditions.php">🎤 Tradisi Lisan</a></li>
-                        <li><a class="dropdown-item" href="traditional-knowledge.php">🌱 Pengetahuan Tradisional</a></li>
-                        <li><a class="dropdown-item" href="cultural-sites.php">🏛️ Situs Budaya</a></li>
-                        <li><a class="dropdown-item" href="history-tracking.php">📊 History Tracking</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/oral-traditions">🎤 Tradisi Lisan</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/traditional-knowledge">🌱 Pengetahuan Tradisional</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/cultural-sites">🏛️ Situs Budaya</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/history-tracking">📊 History Tracking</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="notifications.php">🔔 Notifikasi</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/notifications">🔔 Notifikasi</a></li>
                         <?php if (hasRole(['admin', 'superadmin'])): ?>
-                        <li><a class="dropdown-item" href="backup.php">💾 Backup & Restore</a></li>
-                        <li><a class="dropdown-item" href="admin.php">📊 Admin</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/backup">💾 Backup & Restore</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/admin">📊 Admin</a></li>
                         <?php endif; ?>
-                        <li><a class="dropdown-item" href="assistant.html">🤖 AI Assistant</a></li>
+                        <li><a class="dropdown-item" href="<?= TAROMBO_BASE_URL ?>/assistant">🤖 AI Assistant</a></li>
                     </ul>
                 </li>
                 <li class="nav-item" id="authNavItem">
                     <?php if ($currentUser): ?>
-                        <a class="nav-link" href="logout.php">🔓 Logout (<?= e($currentUser['name'] ?? 'User') ?>)</a>
+                        <a class="nav-link" href="<?= TAROMBO_BASE_URL ?>/logout">🔓 Logout (<?= e($currentUser['name'] ?? 'User') ?>)</a>
                     <?php else: ?>
-                        <a class="nav-link" href="login.html">🔑 Login</a>
+                        <a class="nav-link" href="<?= TAROMBO_BASE_URL ?>/login">🔑 Login</a>
                     <?php endif; ?>
                 </li>
             </ul>

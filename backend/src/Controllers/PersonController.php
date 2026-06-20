@@ -40,9 +40,10 @@ class PersonController
         
         // Filter by search (search in nama, nama_depan, and marga)
         if ($search = $request->getQueryParams()['search'] ?? null) {
-            $query->where(function($q) use ($search) {
-                $q->where('nama', 'like', "%$search%")
-                  ->orWhere('nama_depan', 'like', "%$search%");
+            $escapedSearch = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+            $query->where(function($q) use ($escapedSearch) {
+                $q->where('nama', 'like', "%$escapedSearch%")
+                  ->orWhere('nama_depan', 'like', "%$escapedSearch%");
             });
         }
         

@@ -50,11 +50,21 @@ class AssetController
             $query->where('status', $status);
         }
         
-        $assets = $query->orderBy('created_at', 'desc')->get();
+        $page = max(1, (int)($request->getQueryParams()['page'] ?? 1));
+        $limit = min(100, max(1, (int)($request->getQueryParams()['limit'] ?? 20)));
+        $total = $query->count();
+        $assets = $query->offset(($page - 1) * $limit)->limit($limit)
+            ->orderBy('created_at', 'desc')->get();
         
         return $this->jsonResponse($response, [
             'success' => true,
-            'data' => $assets
+            'data' => $assets,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'total' => $total,
+                'total_pages' => (int)ceil($total / $limit)
+            ]
         ]);
     }
     

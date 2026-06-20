@@ -24,7 +24,7 @@ async function initAuthNav() {
     if (token) {
         // Try to get user info
         try {
-            const response = await fetch('/tarombo/api/v1/auth/me', {
+            const response = await fetch(API_BASE_URL + '/auth/me', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (response.ok) {

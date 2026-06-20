@@ -45,11 +45,14 @@ class AuditService
         
         // Trigger notification if service is available
         if ($this->notificationService) {
+            $shortType = strtolower(basename(str_replace('\\', '/', get_class($entity))));
+            $displayName = $entity->nama ?? $entity->name ?? $entity->title ?? 'Entity #' . $entityId;
             $this->notificationService->notifyEntityChange(
-                $performedBy,
-                $entityType,
+                $shortType,
                 $entityId,
-                $action
+                $action,
+                $displayName,
+                $performedBy
             );
         }
     }

@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'http://localhost:9000/api/v1';
+const API_BASE_URL = '/tarombo/api/v1';
 
 // Token management
 function getAuthToken() {

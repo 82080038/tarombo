@@ -74,20 +74,16 @@ class Marriage extends Model
             return false;
         }
         
-        $forbiddenPairs = [
-            ['Marbun', 'Sihotang'],
-            ['Nainggolan', 'Siregar']
-        ];
+        $forbidden = ForbiddenMargaPair::where(function ($q) use ($husband, $wife) {
+            $q->where(function ($q2) use ($husband, $wife) {
+                $q2->where('marga_a_id', $husband->marga_id)
+                   ->where('marga_b_id', $wife->marga_id);
+            })->orWhere(function ($q2) use ($husband, $wife) {
+                $q2->where('marga_a_id', $wife->marga_id)
+                   ->where('marga_b_id', $husband->marga_id);
+            });
+        })->exists();
         
-        foreach ($forbiddenPairs as $pair) {
-            if (
-                ($husband->marga->nama === $pair[0] && $wife->marga->nama === $pair[1]) ||
-                ($husband->marga->nama === $pair[1] && $wife->marga->nama === $pair[0])
-            ) {
-                return false;
-            }
-        }
-        
-        return true;
+        return !$forbidden;
     }
 }

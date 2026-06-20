@@ -23,7 +23,12 @@ ALTER TABLE transactions
 ADD COLUMN IF NOT EXISTS created_by INT NULL COMMENT 'User who created the transaction' AFTER bukti_dokumen_id,
 ADD INDEX IF NOT EXISTS idx_created_by (created_by);
 
--- Add foreign key constraint for created_by
-ALTER TABLE transactions 
-ADD CONSTRAINT IF NOT EXISTS fk_transactions_created_by 
-FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL;
+-- Add foreign key constraint for created_by (check if exists first)
+SET @fk_exists = (SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS 
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'transactions' AND CONSTRAINT_NAME = 'fk_transactions_created_by');
+SET @sql = IF(@fk_exists = 0,
+    'ALTER TABLE transactions ADD CONSTRAINT fk_transactions_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL',
+    'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

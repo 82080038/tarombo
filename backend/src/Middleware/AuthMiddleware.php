@@ -18,7 +18,7 @@ class AuthMiddleware
     
     public function __construct()
     {
-        $this->secretKey = $_ENV['JWT_SECRET'] ?? 'your-secret-key-change-in-production';
+        $this->secretKey = $_ENV['JWT_SECRET'] ?? throw new \RuntimeException('JWT_SECRET environment variable is not set');
     }
     
     public function __invoke(Request $request, RequestHandler $handler): Response

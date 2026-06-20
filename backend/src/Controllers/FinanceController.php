@@ -40,11 +40,21 @@ class FinanceController
             $query->where('status', $status);
         }
         
-        $transactions = $query->orderBy('tanggal', 'desc')->get();
+        $page = max(1, (int)($request->getQueryParams()['page'] ?? 1));
+        $limit = min(100, max(1, (int)($request->getQueryParams()['limit'] ?? 20)));
+        $total = $query->count();
+        $transactions = $query->orderBy('tanggal', 'desc')
+            ->offset(($page - 1) * $limit)->limit($limit)->get();
         
         return $this->jsonResponse($response, [
             'success' => true,
-            'data' => $transactions
+            'data' => $transactions,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit,
+                'total' => $total,
+                'total_pages' => (int)ceil($total / $limit)
+            ]
         ]);
     }
     
@@ -183,10 +193,10 @@ class FinanceController
         $iuran = Iuran::create([
             'punguan_id' => $body['punguan_id'],
             'person_id' => $body['person_id'] ?? null,
+            'jenis_iuran' => $body['jenis_iuran'] ?? 'bulanan',
             'jumlah' => $body['jumlah'],
-            'periode' => $body['periode'] ?? 'bulanan',
-            'status' => 'belum',
-            'tanggal_bayar' => null
+            'periode' => $body['periode'] ?? null,
+            'status' => 'pending',
         ]);
         
         return $this->jsonResponse($response, [
@@ -210,8 +220,9 @@ class FinanceController
             ], 404);
         }
         
-        $iuran->status = 'lunas';
-        $iuran->tanggal_bayar = $body['tanggal_bayar'] ?? now();
+        $iuran->status = 'verified';
+        $iuran->verified_by = $request->getAttribute('user_id');
+        $iuran->verified_at = now();
         $iuran->save();
         
         return $this->jsonResponse($response, [

@@ -43,11 +43,16 @@ class PartuturanService
             return [$from];
         }
         
-        $queue = [[$from, [$from]]];
+        $maxDepth = 10;
+        $queue = [[$from, [$from], 0]];
         $visited = [$from->id => true];
         
         while (!empty($queue)) {
-            [$current, $path] = array_shift($queue);
+            [$current, $path, $depth] = array_shift($queue);
+            
+            if ($depth >= $maxDepth) {
+                continue;
+            }
             
             // Get all relations
             $relations = [];
@@ -78,7 +83,7 @@ class PartuturanService
                     }
                     
                     $visited[$next->id] = true;
-                    $queue[] = [$next, array_merge($path, [$next])];
+                    $queue[] = [$next, array_merge($path, [$next]), $depth + 1];
                 }
             }
         }

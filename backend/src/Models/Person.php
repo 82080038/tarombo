@@ -98,11 +98,14 @@ class Person extends Model
     }
     
     /**
-     * All children
+     * All children (as father or mother) - returns query builder
      */
     public function allChildren()
     {
-        return $this->childrenAsFather->merge($this->childrenAsMother);
+        return Person::where(function ($q) {
+            $q->where('father_id', $this->id)
+              ->orWhere('mother_id', $this->id);
+        });
     }
     
     /**
@@ -119,23 +122,19 @@ class Person extends Model
     }
     
     /**
-     * Spouses
+     * Spouses - get all spouses via marriages table
      */
-    public function spouses(): BelongsToMany
+    public function spouses()
     {
-        return $this->belongsToMany(
-            Person::class,
-            'marriages',
-            'husband_id',
-            'wife_id'
-        )->union(
-            $this->belongsToMany(
-                Person::class,
-                'marriages',
-                'wife_id',
-                'husband_id'
+        $spouseIds = Marriage::where('husband_id', $this->id)
+            ->pluck('wife_id')
+            ->merge(
+                Marriage::where('wife_id', $this->id)->pluck('husband_id')
             )
-        );
+            ->unique()
+            ->values();
+
+        return Person::whereIn('id', $spouseIds);
     }
     
     /**

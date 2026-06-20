@@ -12,11 +12,12 @@ class Iuran extends Model
 {
     protected $table = 'iuran';
     protected $fillable = [
-        'punguan_id', 'person_id', 'jumlah', 'periode', 'status', 'tanggal_bayar'
+        'punguan_id', 'person_id', 'jenis_iuran', 'jumlah', 'periode',
+        'status', 'verified_by', 'verified_at', 'keterangan'
     ];
     protected $casts = [
         'jumlah' => 'decimal:2',
-        'tanggal_bayar' => 'date',
+        'verified_at' => 'datetime',
         'created_at' => 'datetime'
     ];
 
@@ -28,5 +29,10 @@ class Iuran extends Model
     public function person()
     {
         return $this->belongsTo(Person::class, 'person_id');
+    }
+
+    public function verifier()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }
