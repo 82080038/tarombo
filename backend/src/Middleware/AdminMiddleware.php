@@ -28,8 +28,8 @@ class AdminMiddleware
     {
         $response = new \Slim\Psr7\Response();
         $response->getBody()->write(json_encode([
-            'error' => $message,
-            'code' => 'FORBIDDEN'
+            'success' => false,
+            'error' => ['code' => 'FORBIDDEN', 'message' => $message]
         ]));
         
         return $response
