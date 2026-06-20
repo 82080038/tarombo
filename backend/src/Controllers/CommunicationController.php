@@ -34,7 +34,7 @@ class CommunicationController
         $id = (int)$args['id'];
         $announcement = Announcement::find($id);
         if (!$announcement) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Announcement not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'ANNOUNCEMENT_NOT_FOUND', 'message' => 'Announcement not found']], 404);
         }
         $announcement->status = 'published';
         $announcement->tanggal_publish = now();
@@ -92,7 +92,7 @@ class CommunicationController
         $id = (int)$args['id'];
         $notification = Notification::find($id);
         if (!$notification) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Notification not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'NOTIFICATION_NOT_FOUND', 'message' => 'Notification not found']], 404);
         }
         $notification->is_read = true;
         $notification->read_at = now();

@@ -28,6 +28,7 @@ class MargaController
         $marga = $query->orderBy('nama')->get();
         
         $response->getBody()->write(json_encode([
+            'success' => true,
             'data' => $marga->toArray(),
             'total' => $marga->count()
         ]));
@@ -47,8 +48,8 @@ class MargaController
         
         if (!$marga) {
             $response->getBody()->write(json_encode([
-                'error' => 'Marga not found',
-                'code' => 'MARGA_NOT_FOUND'
+                'success' => false,
+                'error' => ['code' => 'MARGA_NOT_FOUND', 'message' => 'Marga not found']
             ]));
             return $response
                 ->withHeader('Content-Type', 'application/json')
@@ -56,6 +57,7 @@ class MargaController
         }
         
         $response->getBody()->write(json_encode([
+            'success' => true,
             'data' => $marga->toArray(),
             'persons_count' => $marga->active_persons_count
         ]));

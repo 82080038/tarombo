@@ -98,7 +98,7 @@ $app->group('/api/v1/marriages', function ($group) {
 });
 
 // Check if two margas can marry
-$app->get('/api/v1/margas/{id}/can-marry/{target_id}', [MarriageController::class, 'canMarry']);
+$app->get('/api/v1/marga/{id}/can-marry/{target_id}', [MarriageController::class, 'canMarry']);
 
 // Partuturan calculation endpoint
 $app->get('/api/v1/partuturan/calculate', [PersonController::class, 'calculatePartuturan']);

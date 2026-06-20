@@ -79,7 +79,7 @@ class BackupController
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
-                'error' => 'Failed to export backup: ' . $e->getMessage()
+                'error' => ['code' => 'EXPORT_FAILED', 'message' => 'Failed to export backup: ' . $e->getMessage()]
             ]));
             return $response->withStatus(500);
         }
@@ -95,7 +95,7 @@ class BackupController
         if (!in_array($entityType, self::ALLOWED_TABLES)) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Invalid or forbidden table name'
+                'error' => ['code' => 'INVALID_TABLE', 'message' => 'Invalid or forbidden table name']
             ], 400);
         }
         
@@ -119,7 +119,7 @@ class BackupController
         } catch (\Exception $e) {
             $response->getBody()->write(json_encode([
                 'success' => false,
-                'error' => 'Failed to export entity: ' . $e->getMessage()
+                'error' => ['code' => 'EXPORT_FAILED', 'message' => 'Failed to export entity: ' . $e->getMessage()]
             ]));
             return $response->withStatus(500);
         }
@@ -135,7 +135,7 @@ class BackupController
         if (!isset($files['backup'])) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'No backup file provided'
+                'error' => ['code' => 'NO_FILE', 'message' => 'No backup file provided']
             ], 400);
         }
         
@@ -148,7 +148,7 @@ class BackupController
             if (!$backup || !isset($backup['data'])) {
                 return $this->jsonResponse($response, [
                     'success' => false,
-                    'error' => 'Invalid backup file format'
+                    'error' => ['code' => 'INVALID_FORMAT', 'message' => 'Invalid backup file format']
                 ], 400);
             }
             
@@ -162,7 +162,7 @@ class BackupController
                     }
                     
                     if (!in_array($table, self::ALLOWED_TABLES)) {
-                        $errors[] = ['table' => $table, 'error' => 'Table not allowed'];
+                        $errors[] = ['table' => $table, 'error' => ['code' => 'TABLE_NOT_ALLOWED', 'message' => 'Table not allowed']];
                         continue;
                     }
                     
@@ -193,7 +193,7 @@ class BackupController
         } catch (\Exception $e) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Failed to import backup: ' . $e->getMessage()
+                'error' => ['code' => 'IMPORT_FAILED', 'message' => 'Failed to import backup: ' . $e->getMessage()]
             ], 500);
         }
     }

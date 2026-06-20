@@ -40,19 +40,22 @@ Router root (`index.php`) akan mencoba `.php` terlebih dahulu sebelum fallback k
 sudo /opt/lampp/lampp start
 ```
 
-2. Buat database
+2. Buat database dan jalankan semua migrations
 ```
-/opt/lampp/bin/mysql -u root -proot < /opt/lampp/htdocs/tarombo/database/init.sql
-/opt/lampp/bin/mysql -u root -proot < /opt/lampp/htdocs/tarombo/database/migrations/001_add_marriage_stages.sql
-/opt/lampp/bin/mysql -u root -proot < /opt/lampp/htdocs/tarombo/database/migrations/002_add_ceremonies.sql
-/opt/lampp/bin/mysql -u root -proot < /opt/lampp/htdocs/tarombo/database/migrations/003_add_punguan_makam_docs_geo.sql
+/opt/lampp/bin/mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS tarombo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+# Jalankan schema utama
+/opt/lampp/bin/mysql -u root -proot tarombo < /opt/lampp/htdocs/tarombo/database/schema_updated.sql
+# Jalankan semua migrations berurutan
+for f in /opt/lampp/htdocs/tarombo/database/migrations/*.sql; do
+  /opt/lampp/bin/mysql -u root -proot tarombo < "$f"
+done
 ```
 
 3. Buat .env backend
 ```
 cp /opt/lampp/htdocs/tarombo/backend/.env.example /opt/lampp/htdocs/tarombo/backend/.env
 ```
-Edit `.env`: DB_PASS=root, JWT_SECRET=tarombo-secret-key-2024
+Edit `.env`: DB_PASS=root, JWT_SECRET=<generate dengan `openssl rand -base64 32`>
 
 4. Install backend dependencies
 ```
@@ -112,9 +115,12 @@ cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed
 ### Auth
 - POST /api/v1/auth/login
 - POST /api/v1/auth/register
-- POST /api/v1/auth/quick-login
-- GET /api/v1/auth/me
-- POST /api/v1/auth/logout
+- POST /api/v1/auth/quick-login (localhost only)
+- GET /api/v1/auth/me (JWT)
+- POST /api/v1/auth/logout (JWT)
+- POST /api/v1/auth/forgot-password
+- POST /api/v1/auth/reset-password
+- POST /api/v1/auth/verify-email
 
 ### Persons
 - GET /api/v1/persons — list persons (dengan filter)
@@ -127,7 +133,7 @@ cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed
 ### Marga
 - GET /api/v1/marga — list marga
 - GET /api/v1/marga/{id} — detail marga
-- GET /api/v1/margas/{id}/can-marry/{target_id}
+- GET /api/v1/marga/{id}/can-marry/{target_id}
 
 ### Marriage
 - GET /api/v1/marriages — list perkawinan
@@ -167,3 +173,34 @@ cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed
 - GET /api/v1/admin/statistics — dashboard stats (JWT + admin)
 - GET /api/v1/admin/users — list users (JWT + admin)
 - PUT /api/v1/admin/users/{id}/role — update role (JWT + admin)
+
+### GEDCOM
+- GET /api/v1/gedcom/export — export GEDCOM 5.5.1 (JWT)
+- POST /api/v1/gedcom/import — import GEDCOM (JWT)
+
+### Backup/Restore
+- GET /api/v1/backup/export — full backup (JWT + admin)
+- GET /api/v1/backup/export/{type} — entity backup (JWT + admin)
+- POST /api/v1/backup/import — restore backup (JWT + admin)
+
+### Response Format (Konsisten)
+```json
+// Success
+{"success": true, "data": {...}, "meta": {...}}
+// Error
+{"success": false, "error": {"code": "ERROR_CODE", "message": "..."}}
+```
+
+### Testing
+```
+cd /opt/lampp/htdocs/tarombo/backend && vendor/bin/phpunit --testsuite Unit
+cd /opt/lampp/htdocs/tarombo/backend && vendor/bin/phpunit --filter SecurityFixesTest
+cd /opt/lampp/htdocs/tarombo/tests && npx playwright test --headed
+```
+
+### Database Info
+- 38 tabel, 25+ FK constraints, 14+ indexes
+- FULLTEXT indexes pada persons.nama, marga.nama, stories.judil
+- Migration files: 001-012 di database/migrations/
+- Lihat ANALISIS_MENDALAM_APLIKASI.md untuk status perbaikan
+- Lihat DEVELOPER_GUIDE.md untuk panduan lengkap

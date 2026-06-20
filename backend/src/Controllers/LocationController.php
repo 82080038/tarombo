@@ -16,7 +16,7 @@ class LocationController
         $id = (int)$args['id'];
         $rumah = RumahKeluarga::with(['person'])->find($id);
         if (!$rumah) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Rumah not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'RUMAH_NOT_FOUND', 'message' => 'Rumah not found']], 404);
         }
         return $this->jsonResponse($response, ['success' => true, 'data' => $rumah]);
     }
@@ -44,7 +44,7 @@ class LocationController
         $body = $request->getParsedBody() ?? [];
         $rumah = RumahKeluarga::find($id);
         if (!$rumah) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Rumah not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'RUMAH_NOT_FOUND', 'message' => 'Rumah not found']], 404);
         }
         $rumah->update($body);
         return $this->jsonResponse($response, ['success' => true, 'data' => $rumah]);
@@ -54,7 +54,7 @@ class LocationController
         $id = (int)$args['id'];
         $rumah = RumahKeluarga::find($id);
         if (!$rumah) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Rumah not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'RUMAH_NOT_FOUND', 'message' => 'Rumah not found']], 404);
         }
         $rumah->delete();
         return $this->jsonResponse($response, ['success' => true, 'message' => 'Rumah deleted']);

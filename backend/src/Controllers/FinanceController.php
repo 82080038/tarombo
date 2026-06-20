@@ -94,7 +94,7 @@ class FinanceController
         if (!$transaction) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Transaction not found'
+                'error' => ['code' => 'TRANSACTION_NOT_FOUND', 'message' => 'Transaction not found']
             ], 404);
         }
         
@@ -216,7 +216,7 @@ class FinanceController
         if (!$iuran) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Iuran not found'
+                'error' => ['code' => 'IURAN_NOT_FOUND', 'message' => 'Iuran not found']
             ], 404);
         }
         

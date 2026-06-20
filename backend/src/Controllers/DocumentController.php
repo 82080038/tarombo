@@ -26,7 +26,7 @@ class DocumentController
     {
         $id = (int)$args['id'];
         $doc = Document::with(['person', 'ceremony', 'punguan'])->find($id);
-        if (!$doc) return $this->jsonResponse($response, ['success' => false, 'error' => 'Dokumen tidak ditemukan'], 404);
+        if (!$doc) return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'DOCUMENT_NOT_FOUND', 'message' => 'Dokumen tidak ditemukan']], 404);
         return $this->jsonResponse($response, ['success' => true, 'data' => $doc]);
     }
 

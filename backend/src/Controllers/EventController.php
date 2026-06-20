@@ -17,7 +17,7 @@ class EventController
         $id = (int)$args['id'];
         $event = Event::with(['punguan', 'person', 'creator', 'attendees.person'])->find($id);
         if (!$event) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Event not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'EVENT_NOT_FOUND', 'message' => 'Event not found']], 404);
         }
         return $this->jsonResponse($response, ['success' => true, 'data' => $event]);
     }
@@ -47,7 +47,7 @@ class EventController
         $body = $request->getParsedBody() ?? [];
         $event = Event::find($id);
         if (!$event) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Event not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'EVENT_NOT_FOUND', 'message' => 'Event not found']], 404);
         }
         $event->update($body);
         return $this->jsonResponse($response, ['success' => true, 'data' => $event]);
@@ -57,7 +57,7 @@ class EventController
         $id = (int)$args['id'];
         $event = Event::find($id);
         if (!$event) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Event not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'EVENT_NOT_FOUND', 'message' => 'Event not found']], 404);
         }
         $event->delete();
         return $this->jsonResponse($response, ['success' => true, 'message' => 'Event deleted']);
@@ -81,7 +81,7 @@ class EventController
         $body = $request->getParsedBody() ?? [];
         $attendee = EventAttendee::where('event_id', $id)->where('id', $attendeeId)->first();
         if (!$attendee) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Attendee not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'ATTENDEE_NOT_FOUND', 'message' => 'Attendee not found']], 404);
         }
         $attendee->update(['status' => $body['status'], 'catatan' => $body['catatan'] ?? $attendee->catatan, 'tanggal_respon' => now()]);
         return $this->jsonResponse($response, ['success' => true, 'data' => $attendee]);

@@ -24,7 +24,7 @@ class PunguanController
     {
         $id = (int)$args['id'];
         $p = Punguan::with(['marga', 'ketua', 'members.person', 'iuran'])->find($id);
-        if (!$p) return $this->jsonResponse($response, ['success' => false, 'error' => 'Punguan tidak ditemukan'], 404);
+        if (!$p) return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'PUNGUAN_NOT_FOUND', 'message' => 'Punguan tidak ditemukan']], 404);
         return $this->jsonResponse($response, ['success' => true, 'data' => $p]);
     }
 

@@ -56,7 +56,7 @@ class CeremonyController
         $id = (int)$args['id'];
         $ceremony = Ceremony::with(['marriage', 'rajaParhata'])->find($id);
         if (!$ceremony) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Acara tidak ditemukan'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'CEREMONY_NOT_FOUND', 'message' => 'Acara tidak ditemukan']], 404);
         }
         return $this->jsonResponse($response, ['success' => true, 'data' => $ceremony]);
     }
@@ -66,7 +66,7 @@ class CeremonyController
         $id = (int)$args['id'];
         $ceremony = Ceremony::find($id);
         if (!$ceremony) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Acara tidak ditemukan'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'CEREMONY_NOT_FOUND', 'message' => 'Acara tidak ditemukan']], 404);
         }
 
         $body = $request->getParsedBody() ?? [];

@@ -100,11 +100,11 @@ class AdminController
 
         $user = User::find($id);
         if (!$user) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'User not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'USER_NOT_FOUND', 'message' => 'User not found']], 404);
         }
 
         if (!in_array($role, ['guest', 'user', 'verified', 'tetua', 'punguan_admin', 'admin'])) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Invalid role'], 400);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'INVALID_ROLE', 'message' => 'Invalid role']], 400);
         }
 
         $user->role = $role;

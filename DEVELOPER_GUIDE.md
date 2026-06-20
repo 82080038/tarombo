@@ -1,7 +1,7 @@
 # Developer Guide - Tarombo Digital
 
-**Version:** 1.0.0  
-**Last Updated:** June 15, 2026  
+**Version:** 2.0.0  
+**Last Updated:** June 20, 2026  
 **Target Audience:** Developers joining the Tarombo Digital project
 
 ---

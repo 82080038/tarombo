@@ -54,7 +54,7 @@ class HeritageController
         $id = (int)$args['id'];
         $story = Story::find($id);
         if (!$story) {
-            return $this->jsonResponse($response, ['success' => false, 'error' => 'Story not found'], 404);
+            return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'STORY_NOT_FOUND', 'message' => 'Story not found']], 404);
         }
         $story->status = 'published';
         $story->save();

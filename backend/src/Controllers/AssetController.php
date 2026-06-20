@@ -77,7 +77,7 @@ class AssetController
         if (!$asset) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Asset not found'
+                'error' => ['code' => 'ASSET_NOT_FOUND', 'message' => 'Asset not found']
             ], 404);
         }
         
@@ -127,7 +127,7 @@ class AssetController
         if (!$asset) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Asset not found'
+                'error' => ['code' => 'ASSET_NOT_FOUND', 'message' => 'Asset not found']
             ], 404);
         }
         
@@ -167,7 +167,7 @@ class AssetController
         if (!$asset) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Asset not found'
+                'error' => ['code' => 'ASSET_NOT_FOUND', 'message' => 'Asset not found']
             ], 404);
         }
         
@@ -192,7 +192,7 @@ class AssetController
         if (!$asset) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'Asset not found'
+                'error' => ['code' => 'ASSET_NOT_FOUND', 'message' => 'Asset not found']
             ], 404);
         }
         
@@ -202,7 +202,7 @@ class AssetController
         if (!$pemilikBaruId) {
             return $this->jsonResponse($response, [
                 'success' => false,
-                'error' => 'New owner ID is required'
+                'error' => ['code' => 'INVALID_INPUT', 'message' => 'New owner ID is required']
             ], 400);
         }
         

@@ -25,7 +25,7 @@ class MakamController
     {
         $id = (int)$args['id'];
         $m = Makam::with('person')->find($id);
-        if (!$m) return $this->jsonResponse($response, ['success' => false, 'error' => 'Makam tidak ditemukan'], 404);
+        if (!$m) return $this->jsonResponse($response, ['success' => false, 'error' => ['code' => 'MAKAM_NOT_FOUND', 'message' => 'Makam tidak ditemukan']], 404);
         return $this->jsonResponse($response, ['success' => true, 'data' => $m]);
     }
 

@@ -50,7 +50,8 @@ class PersonController
         $perPage = (int) ($request->getQueryParams()['per_page'] ?? 20);
         $persons = $query->paginate($perPage);
         
-        $response->getBody()->write(json_encode([
+        return $this->jsonResponse($response, [
+            'success' => true,
             'data' => array_map(function($person) {
                 $data = $person->toArray();
                 $data['full_name'] = $person->full_name;
@@ -62,9 +63,7 @@ class PersonController
                 'per_page' => $persons->perPage(),
                 'total' => $persons->total()
             ]
-        ]));
-        
-        return $response->withHeader('Content-Type', 'application/json');
+        ]);
     }
     
     /**
@@ -88,16 +87,14 @@ class PersonController
         ])->find($id);
         
         if (!$person) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Person not found',
-                'code' => 'PERSON_NOT_FOUND'
-            ]));
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(404);
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'error' => ['code' => 'PERSON_NOT_FOUND', 'message' => 'Person not found']
+            ], 404);
         }
         
-        $response->getBody()->write(json_encode([
+        return $this->jsonResponse($response, [
+            'success' => true,
             'data' => array_merge($person->toArray(), ['full_name' => $person->full_name]),
             'relationships' => [
                 'tulang' => $person->getTulang(),
@@ -105,9 +102,7 @@ class PersonController
                 'bere' => $person->getBere(),
                 'pariban_candidates' => $person->getParibanCandidates()
             ]
-        ]));
-        
-        return $response->withHeader('Content-Type', 'application/json');
+        ]);
     }
     
     /**
@@ -122,14 +117,10 @@ class PersonController
         // Validation
         $errors = $this->validatePersonData($data);
         if (!empty($errors)) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Validation failed',
-                'errors' => $errors,
-                'code' => 'VALIDATION_ERROR'
-            ]));
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(422);
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'error' => ['code' => 'VALIDATION_ERROR', 'message' => 'Validation failed', 'details' => $errors]
+            ], 422);
         }
         
         // BR-MRG-001: Patrilineal inheritance
@@ -147,14 +138,10 @@ class PersonController
             ->first();
         
         if ($existing) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Person already exists',
-                'code' => 'BR-SYS-002',
-                'existing_person' => $existing->toArray()
-            ]));
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(422);
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'error' => ['code' => 'BR-SYS-002', 'message' => 'Person already exists', 'existing_person' => $existing->toArray()]
+            ], 422);
         }
         
         // Create person
@@ -166,14 +153,11 @@ class PersonController
         // Audit log (BR-HIS-001)
         $this->auditService->log('CREATE', $person, $data['created_by']);
         
-        $response->getBody()->write(json_encode([
+        return $this->jsonResponse($response, [
+            'success' => true,
             'data' => $person->toArray(),
             'message' => 'Person created successfully'
-        ]));
-        
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(201);
+        ], 201);
     }
     
     /**
@@ -204,12 +188,11 @@ class PersonController
         // Audit log (BR-HIS-002)
         $this->auditService->log('UPDATE', $person, $request->getAttribute('user_id'), $oldValues, $person->toArray());
         
-        $response->getBody()->write(json_encode([
+        return $this->jsonResponse($response, [
+            'success' => true,
             'data' => $person->fresh()->toArray(),
             'message' => 'Person updated successfully'
-        ]));
-        
-        return $response->withHeader('Content-Type', 'application/json');
+        ]);
     }
     
     /**
@@ -227,14 +210,10 @@ class PersonController
         
         // Check if person has children (should warn)
         if ($person->allChildren()->count() > 0) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Cannot delete person with children',
-                'code' => 'HAS_CHILDREN',
-                'children_count' => $person->allChildren()->count()
-            ]));
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(422);
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'error' => ['code' => 'HAS_CHILDREN', 'message' => 'Cannot delete person with children', 'children_count' => $person->allChildren()->count()]
+            ], 422);
         }
         
         $oldValues = $person->toArray();
@@ -245,11 +224,10 @@ class PersonController
         // Audit log (BR-HIS-003)
         $this->auditService->log('DELETE', $person, $request->getAttribute('user_id'), $oldValues, null);
         
-        $response->getBody()->write(json_encode([
+        return $this->jsonResponse($response, [
+            'success' => true,
             'message' => 'Person deleted successfully'
-        ]));
-        
-        return $response->withHeader('Content-Type', 'application/json');
+        ]);
     }
     
     /**
@@ -263,13 +241,10 @@ class PersonController
         $toId = (int) ($params['to'] ?? 0);
         
         if (!$fromId || !$toId) {
-            $response->getBody()->write(json_encode([
-                'error' => 'Missing parameters',
-                'required' => ['from', 'to']
-            ]));
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(400);
+            return $this->jsonResponse($response, [
+                'success' => false,
+                'error' => ['code' => 'MISSING_PARAMS', 'message' => 'Missing parameters', 'required' => ['from', 'to']]
+            ], 400);
         }
         
         $from = Person::find($fromId);
@@ -281,22 +256,23 @@ class PersonController
         
         $result = $this->partuturanService->calculate($from, $to);
         
-        $response->getBody()->write(json_encode([
-            'from_person' => [
-                'id' => $from->id,
-                'nama' => $from->full_name
-            ],
-            'to_person' => [
-                'id' => $to->id,
-                'nama' => $to->full_name
-            ],
-            'relationship' => $result->term,
-            'indonesian' => $result->indonesian,
-            'path' => $result->path,
-            'explanation' => $result->explanation
-        ]));
-        
-        return $response->withHeader('Content-Type', 'application/json');
+        return $this->jsonResponse($response, [
+            'success' => true,
+            'data' => [
+                'from_person' => [
+                    'id' => $from->id,
+                    'nama' => $from->full_name
+                ],
+                'to_person' => [
+                    'id' => $to->id,
+                    'nama' => $to->full_name
+                ],
+                'relationship' => $result->term,
+                'indonesian' => $result->indonesian,
+                'path' => $result->path,
+                'explanation' => $result->explanation
+            ]
+        ]);
     }
     
     /**
@@ -341,23 +317,25 @@ class PersonController
     
     private function notFound(Response $response): Response
     {
-        $response->getBody()->write(json_encode([
-            'error' => 'Person not found',
-            'code' => 'PERSON_NOT_FOUND'
-        ]));
-        return $response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus(404);
+        return $this->jsonResponse($response, [
+            'success' => false,
+            'error' => ['code' => 'PERSON_NOT_FOUND', 'message' => 'Person not found']
+        ], 404);
     }
     
     private function validationError(Response $response, array $errors): Response
     {
-        $response->getBody()->write(json_encode([
-            'error' => 'Validation failed',
-            'errors' => $errors
-        ]));
+        return $this->jsonResponse($response, [
+            'success' => false,
+            'error' => ['code' => 'VALIDATION_ERROR', 'message' => 'Validation failed', 'details' => $errors]
+        ], 422);
+    }
+    
+    private function jsonResponse(Response $response, array $data, int $status = 200): Response
+    {
+        $response->getBody()->write(json_encode($data));
         return $response
             ->withHeader('Content-Type', 'application/json')
-            ->withStatus(422);
+            ->withStatus($status);
     }
 }
