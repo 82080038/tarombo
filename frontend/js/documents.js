@@ -13,7 +13,9 @@ async function loadDocuments() {
         const params = new URLSearchParams();
         if (type) params.set('type', type);
 
-        const response = await fetch(`${API_BASE_URL}/documents?${params.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/documents?${params.toString()}`, {
+            headers: getAuthHeaders()
+        });
         const result = await response.json();
 
         if (!result.success) {

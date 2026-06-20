@@ -5,7 +5,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function loadPunguan() {
     try {
-        const response = await fetch(`${API_BASE_URL}/punguan`);
+        const response = await fetch(`${API_BASE_URL}/punguan`, {
+            headers: getAuthHeaders()
+        });
         const result = await response.json();
 
         if (!result.success) {

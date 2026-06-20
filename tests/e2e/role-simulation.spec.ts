@@ -113,11 +113,11 @@ test.describe('Role-Based Access Simulation', () => {
     await expect(page.locator('h1')).toContainText('Selamat Datang');
     console.log('✅ Guest can access homepage');
 
-    // Try to access Persons page (should be read-only or require login)
+    // Try to access Persons page (data requires login, but page loads)
     await page.goto('persons');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu');
-    console.log('✅ Guest can view Persons page');
+    console.log('✅ Guest can view Persons page (data requires login)');
 
     // Check if add button is hidden or disabled for guests
     const addButton = page.locator('button:has-text("+ Tambah Anggota")');
@@ -139,17 +139,17 @@ test.describe('Role-Based Access Simulation', () => {
       console.log('⚠️ Admin Dashboard may need authentication check');
     }
 
-    // Try to access Family Tree
+    // Try to access Family Tree (page loads, data requires login)
     await page.goto('family-tree');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Pohon Tarombo');
-    console.log('✅ Guest can access Family Tree');
+    console.log('✅ Guest can access Family Tree page (data requires login)');
 
-    // Try to access Partuturan
+    // Try to access Partuturan (page loads, data requires login)
     await page.goto('partuturan');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Partuturan');
-    console.log('✅ Guest can access Partuturan');
+    console.log('✅ Guest can access Partuturan page (data requires login)');
 
     // Navigate to login page
     await page.goto('login');

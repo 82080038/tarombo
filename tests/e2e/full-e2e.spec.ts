@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { injectAuthToken, authHeaders } from './helpers'
 
 test.describe('Homepage', () => {
   test('loads with correct title and navbar', async ({ page }) => {
@@ -40,7 +41,8 @@ test.describe('Homepage', () => {
 })
 
 test.describe('Persons Page', () => {
-  test('loads and displays person data from API', async ({ page }) => {
+  test('loads and displays person data from API', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('persons')
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
 
@@ -57,7 +59,8 @@ test.describe('Persons Page', () => {
     expect(tableText).toMatch(/John|Sarah|Michael|Emily|David|Alice|Charlie|Emma/)
   })
 
-  test('search filter works', async ({ page }) => {
+  test('search filter works', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('persons')
     await page.waitForSelector('#personsTable tr', { timeout: 10000 })
 
@@ -99,7 +102,8 @@ test.describe('Persons Page', () => {
 })
 
 test.describe('Family Tree Page', () => {
-  test('loads and populates root person select', async ({ page }) => {
+  test('loads and populates root person select', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('family-tree')
     await expect(page.locator('h1')).toContainText('Pohon Tarombo')
 
@@ -113,7 +117,8 @@ test.describe('Family Tree Page', () => {
     expect(options).toBeGreaterThan(1)
   })
 
-  test('selecting person renders family tree', async ({ page }) => {
+  test('selecting person renders family tree', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('family-tree')
 
     await page.waitForFunction(() => {
@@ -133,7 +138,8 @@ test.describe('Family Tree Page', () => {
 })
 
 test.describe('Partuturan Page', () => {
-  test('loads and populates person selects', async ({ page }) => {
+  test('loads and populates person selects', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('partuturan')
     await expect(page.locator('h1')).toContainText('Partuturan')
 
@@ -150,7 +156,8 @@ test.describe('Partuturan Page', () => {
     expect(count2).toBeGreaterThan(1)
   })
 
-  test('calculate button shows alert when no person selected', async ({ page }) => {
+  test('calculate button shows alert when no person selected', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('partuturan')
 
     page.on('dialog', async (dialog) => {
@@ -161,7 +168,8 @@ test.describe('Partuturan Page', () => {
     await page.click('#calculateBtn')
   })
 
-  test('calculates partuturan between related persons', async ({ page }) => {
+  test('calculates partuturan between related persons', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('partuturan')
 
     await page.waitForFunction(() => {
@@ -199,7 +207,8 @@ test.describe('API Backend (via Apache proxy)', () => {
   })
 
   test('GET persons via proxy', async ({ request }) => {
-    const response = await request.get('api/v1/persons')
+    const headers = await authHeaders(request)
+    const response = await request.get('api/v1/persons', { headers })
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body).toHaveProperty('data')
@@ -216,7 +225,8 @@ test.describe('API Backend (via Apache proxy)', () => {
   })
 
   test('GET partuturan calculate via proxy', async ({ request }) => {
-    const response = await request.get('api/v1/partuturan/calculate?from=8&to=1')
+    const headers = await authHeaders(request)
+    const response = await request.get('api/v1/partuturan/calculate?from=8&to=1', { headers })
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.success).toBe(true)
@@ -306,7 +316,8 @@ test.describe('Authentication', () => {
 })
 
 test.describe('Marriages Page', () => {
-  test('loads marriage data and displays progress', async ({ page }) => {
+  test('loads marriage data and displays progress', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('marriages')
     await expect(page.locator('h2')).toContainText('Perkawinan')
     // Wait for table to populate
@@ -327,7 +338,8 @@ test.describe('Ceremonies Page', () => {
 })
 
 test.describe('Persons Page Filters', () => {
-  test('filter by gender works', async ({ page }) => {
+  test('filter by gender works', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('persons')
     await page.waitForFunction(() => {
       const tbody = document.querySelector('#personsTable')
@@ -340,7 +352,8 @@ test.describe('Persons Page Filters', () => {
 })
 
 test.describe('AI Assistant Page', () => {
-  test('loads and answers knowledge question', async ({ page }) => {
+  test('loads and answers knowledge question', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('assistant')
     await expect(page.locator('.card-header')).toContainText('AI Tarombo Assistant')
     // Click suggestion chip
@@ -352,7 +365,8 @@ test.describe('AI Assistant Page', () => {
 })
 
 test.describe('Punguan Page', () => {
-  test('loads punguan data', async ({ page }) => {
+  test('loads punguan data', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('punguan')
     await expect(page.locator('h2')).toContainText('Punguan')
     await page.waitForFunction(() => {
@@ -372,7 +386,8 @@ test.describe('Documents Page', () => {
 })
 
 test.describe('Makam Page', () => {
-  test('loads makam page with map', async ({ page }) => {
+  test('loads makam page with map', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('makam')
     await expect(page.locator('h2')).toContainText('Makam')
     await expect(page.locator('#makamMap')).toBeVisible()
@@ -380,7 +395,8 @@ test.describe('Makam Page', () => {
 })
 
 test.describe('Map Page', () => {
-  test('loads family map page', async ({ page }) => {
+  test('loads family map page', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('map')
     await expect(page.locator('h2')).toContainText('Peta Keluarga')
     await expect(page.locator('#familyMap')).toBeVisible()

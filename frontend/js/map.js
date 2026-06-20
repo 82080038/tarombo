@@ -5,10 +5,10 @@ let markers = [];
 document.addEventListener('DOMContentLoaded', async function () {
     map = L.map('familyMap').setView([-2.5, 120], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-    
+
     populateFilters();
     loadGeoData();
-    
+
     document.getElementById('filterMapMarga').addEventListener('change', loadGeoData);
     document.getElementById('filterMapSubSuku').addEventListener('change', loadGeoData);
 });
@@ -18,7 +18,7 @@ async function populateFilters() {
         const margas = await API.getMarga();
         const mSelect = document.getElementById('filterMapMarga');
         margas.forEach(m => { mSelect.innerHTML += `<option value="${m.id}">${m.nama}</option>`; });
-        
+
         const subSet = [...new Set(margas.map(m => m.sub_suku))].sort();
         const sSelect = document.getElementById('filterMapSubSuku');
         subSet.forEach(s => { sSelect.innerHTML += `<option value="${s}">${s}</option>`; });
@@ -30,16 +30,18 @@ async function populateFilters() {
 async function loadGeoData() {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
-    
+
     const margaId = document.getElementById('filterMapMarga').value;
     const subSuku = document.getElementById('filterMapSubSuku').value;
-    
+
     try {
         const params = new URLSearchParams();
         if (margaId) params.set('marga_id', margaId);
         if (subSuku) params.set('sub_suku', subSuku);
 
-        const response = await fetch(`${API_BASE_URL}/geo/persons?${params.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/geo/persons?${params.toString()}`, {
+            headers: getAuthHeaders()
+        });
         const result = await response.json();
 
         if (!result.success) return;
@@ -60,9 +62,11 @@ async function loadGeoData() {
         if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
 
         // Load statistics
-        const statRes = await fetch(`${API_BASE_URL}/geo/statistics`);
+        const statRes = await fetch(`${API_BASE_URL}/geo/statistics`, {
+            headers: getAuthHeaders()
+        });
         const statResult = await statRes.json();
-        
+
         if (statResult.success) {
             const stats = statResult.data;
             document.getElementById('geoStats').innerHTML = `

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { injectAuthToken, authHeaders } from './helpers'
 
 test.describe('Frontend UI Tests - Homepage & Navigation', () => {
   test('should display homepage', async ({ page }) => {
@@ -52,7 +53,8 @@ test.describe('Frontend UI Tests - Homepage & Navigation', () => {
   })
 
   test('should load persons from API', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons')
+    const headers = await authHeaders(request)
+    const response = await request.get('http://localhost:8000/api/v1/persons', { headers })
     expect(response.ok()).toBeTruthy()
     const body = await response.json()
     expect(body.success).toBe(true)
@@ -68,12 +70,13 @@ test.describe('Frontend UI Tests - Homepage & Navigation', () => {
   })
 
   test('should calculate partuturan', async ({ request }) => {
-    const personsRes = await request.get('http://localhost:8000/api/v1/persons')
+    const headers = await authHeaders(request)
+    const personsRes = await request.get('http://localhost:8000/api/v1/persons', { headers })
     const personsBody = await personsRes.json()
     if (personsBody.data && personsBody.data.length >= 2) {
       const fromId = personsBody.data[0].id
       const toId = personsBody.data[1].id
-      const response = await request.get(`http://localhost:8000/api/v1/partuturan/calculate?from=${fromId}&to=${toId}`)
+      const response = await request.get(`http://localhost:8000/api/v1/partuturan/calculate?from=${fromId}&to=${toId}`, { headers })
       expect(response.ok()).toBeTruthy()
       const body = await response.json()
       expect(body.success).toBe(true)

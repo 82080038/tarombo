@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { injectAuthToken, authHeaders } from './helpers'
 
 test.describe('API Backend Tests', () => {
   test('API health check responds correctly', async ({ request }) => {
@@ -10,7 +11,8 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/persons returns list with meta', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons')
+    const headers = await authHeaders(request)
+    const response = await request.get('http://localhost:8000/api/v1/persons', { headers })
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body).toHaveProperty('data')
@@ -28,7 +30,8 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/persons/1 returns person detail with relationships', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons/1')
+    const headers = await authHeaders(request)
+    const response = await request.get('http://localhost:8000/api/v1/persons/1', { headers })
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.data.id).toBe(1)
@@ -37,14 +40,16 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/persons/9999 returns 404', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons/9999')
+    const headers = await authHeaders(request)
+    const response = await request.get('http://localhost:8000/api/v1/persons/9999', { headers })
     expect(response.status()).toBe(404)
     const body = await response.json()
     expect(body.error.code).toBe('PERSON_NOT_FOUND')
   })
 
   test('GET /api/v1/partuturan/calculate?from=8&to=1 returns relationship', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/partuturan/calculate?from=8&to=1')
+    const headers = await authHeaders(request)
+    const response = await request.get('http://localhost:8000/api/v1/partuturan/calculate?from=8&to=1', { headers })
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.success).toBe(true)
@@ -58,12 +63,14 @@ test.describe('API Backend Tests', () => {
   })
 
   test('GET /api/v1/partuturan/calculate missing params returns 400', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/partuturan/calculate')
+    const headers = await authHeaders(request)
+    const response = await request.get('http://localhost:8000/api/v1/partuturan/calculate', { headers })
     expect(response.status()).toBe(400)
   })
 
   test('GET /api/v1/persons with search filter', async ({ request }) => {
-    const response = await request.get('http://localhost:8000/api/v1/persons?search=John')
+    const headers = await authHeaders(request)
+    const response = await request.get('http://localhost:8000/api/v1/persons?search=John', { headers })
     expect(response.status()).toBe(200)
     const body = await response.json()
     expect(body.data.length).toBeGreaterThan(0)
@@ -79,7 +86,8 @@ test.describe('API Backend Tests', () => {
 })
 
 test.describe('Persons Page - Functional Tests', () => {
-  test('persons page loads and displays table', async ({ page }) => {
+  test('persons page loads and displays table', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('persons')
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu')
     await expect(page.locator('#searchInput')).toBeVisible()
@@ -93,7 +101,8 @@ test.describe('Persons Page - Functional Tests', () => {
     expect(rows).toBeGreaterThan(1)
   })
 
-  test('search filter works on persons page', async ({ page }) => {
+  test('search filter works on persons page', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('persons')
     await page.waitForFunction(() => {
       const rows = document.querySelectorAll('#personsTable tr')
@@ -145,7 +154,8 @@ test.describe('Family Tree Page - Functional Tests', () => {
     await expect(page.locator('#rootPersonSelect')).toBeVisible()
   })
 
-  test('person select populated in family tree', async ({ page }) => {
+  test('person select populated in family tree', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('family-tree')
     await page.waitForFunction(() => {
       const select = document.querySelector('#rootPersonSelect') as HTMLSelectElement
@@ -155,7 +165,8 @@ test.describe('Family Tree Page - Functional Tests', () => {
     expect(optionCount).toBeGreaterThan(1)
   })
 
-  test('selecting person renders family tree', async ({ page }) => {
+  test('selecting person renders family tree', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('family-tree')
     await page.waitForFunction(() => {
       const select = document.querySelector('#rootPersonSelect') as HTMLSelectElement
@@ -177,7 +188,8 @@ test.describe('Partuturan Page - Functional Tests', () => {
     await expect(page.locator('#calculateBtn')).toBeVisible()
   })
 
-  test('person selects populated in partuturan', async ({ page }) => {
+  test('person selects populated in partuturan', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('partuturan')
     await page.waitForFunction(() => {
       const s1 = document.querySelector('#person1Select') as HTMLSelectElement
@@ -190,7 +202,8 @@ test.describe('Partuturan Page - Functional Tests', () => {
     expect(count2).toBeGreaterThan(1)
   })
 
-  test('calculate button shows alert when no person selected', async ({ page }) => {
+  test('calculate button shows alert when no person selected', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('partuturan')
     page.on('dialog', async dialog => {
       expect(dialog.message()).toContain('Pilih dua anggota')
@@ -199,7 +212,8 @@ test.describe('Partuturan Page - Functional Tests', () => {
     await page.click('#calculateBtn')
   })
 
-  test('calculate partuturan between two related persons', async ({ page }) => {
+  test('calculate partuturan between two related persons', async ({ page, request }) => {
+    await injectAuthToken(page, request)
     await page.goto('partuturan')
     await page.waitForFunction(() => {
       const s1 = document.querySelector('#person1Select') as HTMLSelectElement

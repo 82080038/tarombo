@@ -1,6 +1,6 @@
 const FinanceAPI = {
     finance: {
-        getTransactions: (params) => fetch(`${API_BASE_URL}/finance/transactions?${new URLSearchParams(params)}`).then(r => r.json()),
+        getTransactions: (params) => fetch(`${API_BASE_URL}/finance/transactions?${new URLSearchParams(params)}`, { headers: getAuthHeaders() }).then(r => r.json()),
         createTransaction: (data) => fetch(`${API_BASE_URL}/finance/transactions`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
@@ -10,13 +10,13 @@ const FinanceAPI = {
             method: 'PUT',
             headers: { 'Authorization': `Bearer ${getAuthToken()}` }
         }).then(r => r.json()),
-        getBudgets: (params) => fetch(`${API_BASE_URL}/finance/budgets?${new URLSearchParams(params)}`).then(r => r.json()),
+        getBudgets: (params) => fetch(`${API_BASE_URL}/finance/budgets?${new URLSearchParams(params)}`, { headers: getAuthHeaders() }).then(r => r.json()),
         createBudget: (data) => fetch(`${API_BASE_URL}/finance/budgets`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
-        getIuran: (params) => fetch(`${API_BASE_URL}/finance/iuran?${new URLSearchParams(params)}`).then(r => r.json()),
+        getIuran: (params) => fetch(`${API_BASE_URL}/finance/iuran?${new URLSearchParams(params)}`, { headers: getAuthHeaders() }).then(r => r.json()),
         createIuran: (data) => fetch(`${API_BASE_URL}/finance/iuran`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
@@ -27,10 +27,10 @@ const FinanceAPI = {
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
-        getSummary: (params) => fetch(`${API_BASE_URL}/finance/summary?${new URLSearchParams(params)}`).then(r => r.json())
+        getSummary: (params) => fetch(`${API_BASE_URL}/finance/summary?${new URLSearchParams(params)}`, { headers: getAuthHeaders() }).then(r => r.json())
     },
     persons: {
-        getAll: () => fetch(`${API_BASE_URL}/persons`).then(r => r.json())
+        getAll: () => fetch(`${API_BASE_URL}/persons`, { headers: getAuthHeaders() }).then(r => r.json())
     }
 };
 
@@ -66,12 +66,12 @@ function loadTransactions() {
 
 function renderTransactions(transactions) {
     const container = document.getElementById('transactionsList');
-    
+
     if (transactions.length === 0) {
         container.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Tidak ada transaksi</td></tr>';
         return;
     }
-    
+
     container.innerHTML = transactions.map(t => `
         <tr>
             <td class="px-6 py-4 whitespace-nowrap">${formatDate(t.tanggal)}</td>
@@ -93,7 +93,7 @@ function renderTransactions(transactions) {
             </td>
         </tr>
     `).join('');
-    
+
     applyRBAC();
 }
 
@@ -108,12 +108,12 @@ function loadBudgets() {
 
 function renderBudgets(budgets) {
     const container = document.getElementById('budgetsList');
-    
+
     if (budgets.length === 0) {
         container.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada anggaran</td></tr>';
         return;
     }
-    
+
     container.innerHTML = budgets.map(b => `
         <tr>
             <td class="px-6 py-4 whitespace-nowrap">${b.tahun}</td>
@@ -139,12 +139,12 @@ function loadIuran() {
 
 function renderIuran(iuranList) {
     const container = document.getElementById('iuranList');
-    
+
     if (iuranList.length === 0) {
         container.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Tidak ada iuran</td></tr>';
         return;
     }
-    
+
     container.innerHTML = iuranList.map(i => `
         <tr>
             <td class="px-6 py-4 whitespace-nowrap">${i.person ? i.person.nama : 'Tidak ada'}</td>
@@ -161,7 +161,7 @@ function renderIuran(iuranList) {
             </td>
         </tr>
     `).join('');
-    
+
     applyRBAC();
 }
 
@@ -181,12 +181,12 @@ function setupEventListeners() {
     document.getElementById('closeTransactionModal').addEventListener('click', closeTransactionModal);
     document.getElementById('cancelTransactionBtn').addEventListener('click', closeTransactionModal);
     document.getElementById('transactionForm').addEventListener('submit', saveTransaction);
-    
+
     document.getElementById('addBudgetBtn').addEventListener('click', () => openBudgetModal());
     document.getElementById('closeBudgetModal').addEventListener('click', closeBudgetModal);
     document.getElementById('cancelBudgetBtn').addEventListener('click', closeBudgetModal);
     document.getElementById('budgetForm').addEventListener('submit', saveBudget);
-    
+
     document.getElementById('addIuranBtn').addEventListener('click', () => openIuranModal());
     document.getElementById('closeIuranModal').addEventListener('click', closeIuranModal);
     document.getElementById('cancelIuranBtn').addEventListener('click', closeIuranModal);
@@ -198,10 +198,10 @@ function switchTab(tab) {
         btn.classList.remove('border-blue-500', 'text-blue-600');
         btn.classList.add('border-transparent', 'text-gray-500');
     });
-    
+
     document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('border-transparent', 'text-gray-500');
     document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('border-blue-500', 'text-blue-600');
-    
+
     document.getElementById('transactionsTab').classList.add('hidden');
     document.getElementById('budgetsTab').classList.add('hidden');
     document.getElementById('iuranTab').classList.add('hidden');
@@ -220,7 +220,7 @@ function closeTransactionModal() {
 
 function saveTransaction(e) {
     e.preventDefault();
-    
+
     const data = {
         punguan_id: 1,
         tipe: document.getElementById('transactionTipe').value,
@@ -229,7 +229,7 @@ function saveTransaction(e) {
         tanggal: document.getElementById('transactionTanggal').value,
         deskripsi: document.getElementById('transactionDeskripsi').value
     };
-    
+
     FinanceAPI.finance.createTransaction(data)
         .then(response => {
             if (response.success) {
@@ -268,7 +268,7 @@ function closeBudgetModal() {
 
 function saveBudget(e) {
     e.preventDefault();
-    
+
     const data = {
         punguan_id: 1,
         tahun: document.getElementById('budgetTahun').value,
@@ -276,7 +276,7 @@ function saveBudget(e) {
         anggaran: document.getElementById('budgetAnggaran').value,
         deskripsi: document.getElementById('budgetDeskripsi').value
     };
-    
+
     FinanceAPI.finance.createBudget(data)
         .then(response => {
             if (response.success) {
@@ -301,14 +301,14 @@ function closeIuranModal() {
 
 function saveIuran(e) {
     e.preventDefault();
-    
+
     const data = {
         punguan_id: 1,
         person_id: document.getElementById('iuranPerson').value || null,
         jumlah: document.getElementById('iuranJumlah').value,
         periode: document.getElementById('iuranPeriode').value
     };
-    
+
     FinanceAPI.finance.createIuran(data)
         .then(response => {
             if (response.success) {

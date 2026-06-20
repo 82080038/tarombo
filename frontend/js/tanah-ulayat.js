@@ -1,24 +1,24 @@
 const TanahulayatAPI = {
     tanah: {
-        getAll: (params) => fetch(`${API_BASE_URL}/tanah-ulayat?${new URLSearchParams(params)}`).then(r => r.json()),
-        getById: (id) => fetch(`${API_BASE_URL}/tanah-ulayat/${id}`).then(r => r.json()),
+        getAll: (params) => fetch(`${API_BASE_URL}/tanah-ulayat?${new URLSearchParams(params)}`, { headers: getAuthHeaders() }).then(r => r.json()),
+        getById: (id) => fetch(`${API_BASE_URL}/tanah-ulayat/${id}`, { headers: getAuthHeaders() }).then(r => r.json()),
         create: (data) => fetch(`${API_BASE_URL}/tanah-ulayat`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         update: (id, data) => fetch(`${API_BASE_URL}/tanah-ulayat/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         delete: (id) => fetch(`${API_BASE_URL}/tanah-ulayat/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${getToken()}` }
+            headers: { 'Authorization': `Bearer ${getAuthToken()}` }
         }).then(r => r.json())
     },
     persons: {
-        getAll: () => fetch(`${API_BASE_URL}/persons`).then(r => r.json())
+        getAll: () => fetch(`${API_BASE_URL}/persons`, { headers: getAuthHeaders() }).then(r => r.json())
     },
     marga: {
         getAll: () => fetch(`${API_BASE_URL}/marga`).then(r => r.json())
@@ -37,12 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadTanah() {
     document.getElementById('loadingState').classList.remove('hidden');
     document.getElementById('tanahList').innerHTML = '';
-    
+
     const params = {
         marga_id: document.getElementById('filterMarga').value,
         status: document.getElementById('filterStatus').value
     };
-    
+
     TanahulayatAPI.tanah.getAll(params)
         .then(response => {
             if (response.success) {
@@ -63,7 +63,7 @@ function loadTanah() {
 
 function renderTanah(tanahList) {
     const container = document.getElementById('tanahList');
-    
+
     if (tanahList.length === 0) {
         container.innerHTML = `
             <div class="col-span-full text-center py-8 text-gray-500">
@@ -72,7 +72,7 @@ function renderTanah(tanahList) {
         `;
         return;
     }
-    
+
     container.innerHTML = tanahList.map(tanah => `
         <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
             <div class="flex justify-between items-start mb-2">
@@ -98,7 +98,7 @@ function renderTanah(tanahList) {
             </div>
         </div>
     `).join('');
-    
+
     applyRBAC();
 }
 
@@ -108,7 +108,7 @@ function loadMarga() {
             if (response.success) {
                 const filterMargaSelect = document.getElementById('filterMarga');
                 const tanahMargaSelect = document.getElementById('tanahMarga');
-                
+
                 const options = response.data.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
                 filterMargaSelect.innerHTML = '<option value="">Semua Marga</option>' + options;
                 tanahMargaSelect.innerHTML = options;
@@ -121,7 +121,7 @@ function loadPersons() {
         .then(response => {
             if (response.success) {
                 const pengelolaSelect = document.getElementById('tanahPengelola');
-                
+
                 const options = response.data.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
                 pengelolaSelect.innerHTML = '<option value="">Tidak ada pengelola</option>' + options;
             }
@@ -140,10 +140,10 @@ function openModal(tanah = null) {
     const modal = document.getElementById('tanahModal');
     const form = document.getElementById('tanahForm');
     const title = document.getElementById('modalTitle');
-    
+
     form.reset();
     document.getElementById('tanahId').value = '';
-    
+
     if (tanah) {
         title.textContent = 'Edit Tanah Ulayat';
         document.getElementById('tanahId').value = tanah.id;
@@ -160,7 +160,7 @@ function openModal(tanah = null) {
     } else {
         title.textContent = 'Tambah Tanah Ulayat';
     }
-    
+
     modal.classList.remove('hidden');
 }
 
@@ -170,7 +170,7 @@ function closeModal() {
 
 function saveTanah(e) {
     e.preventDefault();
-    
+
     const id = document.getElementById('tanahId').value;
     const data = {
         nama: document.getElementById('tanahNama').value,
@@ -184,9 +184,9 @@ function saveTanah(e) {
         pengelola_id: document.getElementById('tanahPengelola').value || null,
         batas_wilayah: document.getElementById('tanahBatas').value
     };
-    
+
     const promise = id ? TanahulayatAPI.tanah.update(id, data) : TanahulayatAPI.tanah.create(data);
-    
+
     promise.then(response => {
         if (response.success) {
             Toast.success(id ? 'Tanah ulayat berhasil diperbarui' : 'Tanah ulayat berhasil ditambahkan');

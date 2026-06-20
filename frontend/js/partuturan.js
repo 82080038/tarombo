@@ -91,7 +91,9 @@ $(document).ready(function () {
         $('#namboruResult').html('<div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>');
 
         try {
-            const response = await fetch(`${API_BASE_URL}/persons/${id}`);
+            const response = await fetch(`${API_BASE_URL}/persons/${id}`, {
+                headers: getAuthHeaders()
+            });
             const result = await response.json();
             if (!result.success) { showEmpty(); return; }
 
@@ -124,7 +126,9 @@ $(document).ready(function () {
     async function loadBere(id) {
         $('#bereResult').html('<div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>');
         try {
-            const response = await fetch(`${API_BASE_URL}/persons/${id}`);
+            const response = await fetch(`${API_BASE_URL}/persons/${id}`, {
+                headers: getAuthHeaders()
+            });
             const result = await response.json();
             if (!result.success) { $('#bereResult').html('<p class="text-muted">Gagal memuat</p>'); return; }
 
@@ -143,7 +147,9 @@ $(document).ready(function () {
     async function loadPariban(id) {
         $('#paribanResult').html('<div class="text-center"><div class="spinner-border spinner-border-sm"></div></div>');
         try {
-            const response = await fetch(`${API_BASE_URL}/persons/${id}`);
+            const response = await fetch(`${API_BASE_URL}/persons/${id}`, {
+                headers: getAuthHeaders()
+            });
             const result = await response.json();
             if (!result.success) { $('#paribanResult').html('<p class="text-muted">Gagal memuat</p>'); return; }
 

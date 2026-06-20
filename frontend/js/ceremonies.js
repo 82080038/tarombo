@@ -1,7 +1,7 @@
 // Ceremonies Page JavaScript
 document.addEventListener('DOMContentLoaded', function () {
     loadCeremonies();
-    
+
     document.getElementById('filterCeremonyType').addEventListener('change', loadCeremonies);
     document.getElementById('filterCeremonyStatus').addEventListener('change', loadCeremonies);
     document.getElementById('saveCeremonyBtn').addEventListener('click', saveCeremony);
@@ -18,7 +18,9 @@ async function loadCeremonies() {
         if (type) params.set('type', type);
         if (status) params.set('status', status);
 
-        const response = await fetch(`${API_BASE_URL}/ceremonies?${params.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/ceremonies?${params.toString()}`, {
+            headers: getAuthHeaders()
+        });
         const result = await response.json();
 
         if (!result.success) {

@@ -1,30 +1,30 @@
 const AssetsAPI = {
     assets: {
-        getAll: (params) => fetch(`${API_BASE_URL}/assets?${new URLSearchParams(params)}`).then(r => r.json()),
-        getById: (id) => fetch(`${API_BASE_URL}/assets/${id}`).then(r => r.json()),
+        getAll: (params) => fetch(`${API_BASE_URL}/assets?${new URLSearchParams(params)}`, { headers: getAuthHeaders() }).then(r => r.json()),
+        getById: (id) => fetch(`${API_BASE_URL}/assets/${id}`, { headers: getAuthHeaders() }).then(r => r.json()),
         create: (data) => fetch(`${API_BASE_URL}/assets`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         update: (id, data) => fetch(`${API_BASE_URL}/assets/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
         delete: (id) => fetch(`${API_BASE_URL}/assets/${id}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${getToken()}` }
+            headers: { 'Authorization': `Bearer ${getAuthToken()}` }
         }).then(r => r.json()),
         transfer: (id, data) => fetch(`${API_BASE_URL}/assets/${id}/transfer`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getAuthToken()}` },
             body: JSON.stringify(data)
         }).then(r => r.json()),
-        getInheritanceHistory: (id) => fetch(`${API_BASE_URL}/assets/${id}/inheritance`).then(r => r.json())
+        getInheritanceHistory: (id) => fetch(`${API_BASE_URL}/assets/${id}/inheritance`, { headers: getAuthHeaders() }).then(r => r.json())
     },
     persons: {
-        getAll: () => fetch(`${API_BASE_URL}/persons`).then(r => r.json())
+        getAll: () => fetch(`${API_BASE_URL}/persons`, { headers: getAuthHeaders() }).then(r => r.json())
     },
     marga: {
         getAll: () => fetch(`${API_BASE_URL}/marga`).then(r => r.json())
@@ -43,13 +43,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadAssets() {
     document.getElementById('loadingState').classList.remove('hidden');
     document.getElementById('assetsList').innerHTML = '';
-    
+
     const params = {
         tipe: document.getElementById('filterTipe').value,
         marga_id: document.getElementById('filterMarga').value,
         status: document.getElementById('filterStatus').value
     };
-    
+
     AssetsAPI.assets.getAll(params)
         .then(response => {
             if (response.success) {
@@ -70,7 +70,7 @@ function loadAssets() {
 
 function renderAssets(assets) {
     const container = document.getElementById('assetsList');
-    
+
     if (assets.length === 0) {
         container.innerHTML = `
             <div class="col-span-full text-center py-8 text-gray-500">
@@ -79,7 +79,7 @@ function renderAssets(assets) {
         `;
         return;
     }
-    
+
     container.innerHTML = assets.map(asset => `
         <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-4">
             <div class="flex justify-between items-start mb-2">
@@ -101,7 +101,7 @@ function renderAssets(assets) {
             </div>
         </div>
     `).join('');
-    
+
     applyRBAC();
 }
 
@@ -111,7 +111,7 @@ function loadMarga() {
             if (response.success) {
                 const margaSelect = document.getElementById('filterMarga');
                 const assetMargaSelect = document.getElementById('assetMarga');
-                
+
                 const options = response.data.map(m => `<option value="${m.id}">${m.nama}</option>`).join('');
                 margaSelect.innerHTML = '<option value="">Semua Marga</option>' + options;
                 assetMargaSelect.innerHTML = '<option value="">Tidak ada marga</option>' + options;
@@ -125,7 +125,7 @@ function loadPersons() {
             if (response.success) {
                 const pemilikSelect = document.getElementById('assetPemilik');
                 const transferPemilikSelect = document.getElementById('transferPemilikBaru');
-                
+
                 const options = response.data.map(p => `<option value="${p.id}">${p.nama}</option>`).join('');
                 pemilikSelect.innerHTML = '<option value="">Tidak ada pemilik</option>' + options;
                 transferPemilikSelect.innerHTML = options;
@@ -139,7 +139,7 @@ function setupEventListeners() {
     document.getElementById('cancelBtn').addEventListener('click', closeModal);
     document.getElementById('assetForm').addEventListener('submit', saveAsset);
     document.getElementById('applyFilters').addEventListener('click', loadAssets);
-    
+
     document.getElementById('closeTransferModal').addEventListener('click', closeTransferModal);
     document.getElementById('cancelTransferBtn').addEventListener('click', closeTransferModal);
     document.getElementById('transferForm').addEventListener('submit', executeTransfer);
@@ -149,10 +149,10 @@ function openModal(asset = null) {
     const modal = document.getElementById('assetModal');
     const form = document.getElementById('assetForm');
     const title = document.getElementById('modalTitle');
-    
+
     form.reset();
     document.getElementById('assetId').value = '';
-    
+
     if (asset) {
         title.textContent = 'Edit Aset';
         document.getElementById('assetId').value = asset.id;
@@ -169,7 +169,7 @@ function openModal(asset = null) {
     } else {
         title.textContent = 'Tambah Aset';
     }
-    
+
     modal.classList.remove('hidden');
 }
 
@@ -179,7 +179,7 @@ function closeModal() {
 
 function saveAsset(e) {
     e.preventDefault();
-    
+
     const id = document.getElementById('assetId').value;
     const data = {
         nama: document.getElementById('assetNama').value,
@@ -193,9 +193,9 @@ function saveAsset(e) {
         pemilik_saat_ini_id: document.getElementById('assetPemilik').value || null,
         marga_id: document.getElementById('assetMarga').value || null
     };
-    
+
     const promise = id ? AssetsAPI.assets.update(id, data) : AssetsAPI.assets.create(data);
-    
+
     promise.then(response => {
         if (response.success) {
             Toast.success(id ? 'Aset berhasil diperbarui' : 'Aset berhasil ditambahkan');
@@ -269,7 +269,7 @@ function closeTransferModal() {
 
 function executeTransfer(e) {
     e.preventDefault();
-    
+
     const id = document.getElementById('transferAssetId').value;
     const data = {
         pemilik_baru_id: document.getElementById('transferPemilikBaru').value,
@@ -277,7 +277,7 @@ function executeTransfer(e) {
         cara_transfer: document.getElementById('transferCara').value,
         alasan_transfer: document.getElementById('transferAlasan').value
     };
-    
+
     AssetsAPI.assets.transfer(id, data)
         .then(response => {
             if (response.success) {

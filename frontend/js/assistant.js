@@ -6,12 +6,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     preloadData();
     const token = localStorage.getItem('tarombo_token');
     if (token) {
-        try { const user = await API.me(); currentUser = user; } catch (e) {}
+        try { const user = await API.me(); currentUser = user; } catch (e) { }
     }
 });
 
 async function preloadData() {
-    try { allPersons = await API.getPersons(); } catch (e) {}
+    try { allPersons = await API.getPersons(); } catch (e) { }
 }
 
 function setQuery(text) {
@@ -56,7 +56,7 @@ async function processQuery(text) {
         const linked = allPersons.find(p => p.nama.toLowerCase().includes(currentUser.nama.toLowerCase().split(' ')[0]));
         if (!linked) return 'Data Anda belum terhubung dengan person di sistem. Silakan hubungi admin.';
         try {
-            const res = await fetch(`${API_BASE_URL}/persons/${linked.id}`);
+            const res = await fetch(`${API_BASE_URL}/persons/${linked.id}`, { headers: getAuthHeaders() });
             const result = await res.json();
             const tulang = result.data?.relationships?.tulang || [];
             if (!tulang.length) return `Anda (${linked.nama}) tidak memiliki data Tulang dalam sistem. Tulang adalah saudara laki-laki dari ibu Anda.`;
@@ -68,7 +68,7 @@ async function processQuery(text) {
         const linked = allPersons.find(p => p.nama.toLowerCase().includes(currentUser.nama.toLowerCase().split(' ')[0]));
         if (!linked) return 'Data Anda belum terhubung dengan person di sistem.';
         try {
-            const res = await fetch(`${API_BASE_URL}/persons/${linked.id}`);
+            const res = await fetch(`${API_BASE_URL}/persons/${linked.id}`, { headers: getAuthHeaders() });
             const result = await res.json();
             const candidates = result.data?.relationships?.pariban_candidates || [];
             if (!candidates.length) return 'Tidak ditemukan calon Pariban untuk Anda dalam database.';

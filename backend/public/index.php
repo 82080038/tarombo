@@ -76,8 +76,8 @@ $app->group('/api/v1/auth', function ($group) {
 
 // API Routes - Persons
 $app->group('/api/v1/persons', function ($group) {
-    $group->get('', [PersonController::class, 'index']);
-    $group->get('/{id}', [PersonController::class, 'show']);
+    $group->get('', [PersonController::class, 'index'])->add(AuthMiddleware::class);
+    $group->get('/{id}', [PersonController::class, 'show'])->add(AuthMiddleware::class);
     $group->post('', [PersonController::class, 'store'])->add(AuthMiddleware::class);
     $group->put('/{id}', [PersonController::class, 'update'])->add(AuthMiddleware::class);
     $group->delete('/{id}', [PersonController::class, 'destroy'])->add(AuthMiddleware::class);
@@ -91,18 +91,18 @@ $app->group('/api/v1/marga', function ($group) {
 
 // API Routes - Marriages
 $app->group('/api/v1/marriages', function ($group) {
-    $group->get('', [MarriageController::class, 'index']);
-    $group->get('/{id}', [MarriageController::class, 'show']);
+    $group->get('', [MarriageController::class, 'index'])->add(AuthMiddleware::class);
+    $group->get('/{id}', [MarriageController::class, 'show'])->add(AuthMiddleware::class);
     $group->post('', [MarriageController::class, 'store'])->add(AuthMiddleware::class);
     $group->put('/{id}/stages/{stage_id}', [MarriageController::class, 'updateStage'])->add(AuthMiddleware::class);
     $group->delete('/{id}', [MarriageController::class, 'destroy'])->add(AuthMiddleware::class);
 });
 
 // Check if two margas can marry
-$app->get('/api/v1/marga/{id}/can-marry/{target_id}', [MarriageController::class, 'canMarry']);
+$app->get('/api/v1/marga/{id}/can-marry/{target_id}', [MarriageController::class, 'canMarry'])->add(AuthMiddleware::class);
 
 // Partuturan calculation endpoint
-$app->get('/api/v1/partuturan/calculate', [PersonController::class, 'calculatePartuturan']);
+$app->get('/api/v1/partuturan/calculate', [PersonController::class, 'calculatePartuturan'])->add(AuthMiddleware::class);
 
 // Admin routes
 $app->group('/api/v1/admin', function ($group) {
@@ -113,63 +113,63 @@ $app->group('/api/v1/admin', function ($group) {
 
 // Ceremony routes
 $app->group('/api/v1/ceremonies', function ($group) {
-    $group->get('', [CeremonyController::class, 'index']);
+    $group->get('', [CeremonyController::class, 'index'])->add(AuthMiddleware::class);
     $group->post('', [CeremonyController::class, 'store'])->add(AuthMiddleware::class);
-    $group->get('/{id}', [CeremonyController::class, 'show']);
+    $group->get('/{id}', [CeremonyController::class, 'show'])->add(AuthMiddleware::class);
     $group->put('/{id}', [CeremonyController::class, 'update'])->add(AuthMiddleware::class);
 });
 
 // Punguan routes
 $app->group('/api/v1/punguan', function ($group) {
-    $group->get('', [PunguanController::class, 'index']);
-    $group->get('/{id}', [PunguanController::class, 'show']);
-    $group->get('/{id}/members', [PunguanController::class, 'members']);
+    $group->get('', [PunguanController::class, 'index'])->add(AuthMiddleware::class);
+    $group->get('/{id}', [PunguanController::class, 'show'])->add(AuthMiddleware::class);
+    $group->get('/{id}/members', [PunguanController::class, 'members'])->add(AuthMiddleware::class);
     $group->post('', [PunguanController::class, 'store'])->add(AuthMiddleware::class);
 });
 
 // Document routes
 $app->group('/api/v1/documents', function ($group) {
-    $group->get('', [DocumentController::class, 'index']);
-    $group->get('/{id}', [DocumentController::class, 'show']);
+    $group->get('', [DocumentController::class, 'index'])->add(AuthMiddleware::class);
+    $group->get('/{id}', [DocumentController::class, 'show'])->add(AuthMiddleware::class);
     $group->post('', [DocumentController::class, 'store'])->add(AuthMiddleware::class);
 });
 
 // Makam routes
 $app->group('/api/v1/makam', function ($group) {
-    $group->get('', [MakamController::class, 'index']);
-    $group->get('/{id}', [MakamController::class, 'show']);
+    $group->get('', [MakamController::class, 'index'])->add(AuthMiddleware::class);
+    $group->get('/{id}', [MakamController::class, 'show'])->add(AuthMiddleware::class);
     $group->post('', [MakamController::class, 'store'])->add(AuthMiddleware::class);
 });
 
 // Geo / Map routes
 $app->group('/api/v1/geo', function ($group) {
-    $group->get('/persons', [GeoController::class, 'personLocations']);
-    $group->get('/makam', [GeoController::class, 'makamLocations']);
-    $group->get('/statistics', [GeoController::class, 'statistics']);
+    $group->get('/persons', [GeoController::class, 'personLocations'])->add(AuthMiddleware::class);
+    $group->get('/makam', [GeoController::class, 'makamLocations'])->add(AuthMiddleware::class);
+    $group->get('/statistics', [GeoController::class, 'statistics'])->add(AuthMiddleware::class);
 });
 
 // Asset routes (Harta Warisan)
 $app->group('/api/v1/assets', function ($group) {
-    $group->get('', [AssetController::class, 'index']);
-    $group->get('/{id}', [AssetController::class, 'show']);
+    $group->get('', [AssetController::class, 'index'])->add(AuthMiddleware::class);
+    $group->get('/{id}', [AssetController::class, 'show'])->add(AuthMiddleware::class);
     $group->post('', [AssetController::class, 'store'])->add(AuthMiddleware::class);
     $group->put('/{id}', [AssetController::class, 'update'])->add(AuthMiddleware::class);
     $group->delete('/{id}', [AssetController::class, 'destroy'])->add(AuthMiddleware::class);
     $group->post('/{id}/transfer', [AssetController::class, 'transferOwnership'])->add(AuthMiddleware::class);
-    $group->get('/{id}/inheritance', [AssetController::class, 'getInheritanceHistory']);
+    $group->get('/{id}/inheritance', [AssetController::class, 'getInheritanceHistory'])->add(AuthMiddleware::class);
 });
 
 // Finance routes (Keuangan Punguan)
 $app->group('/api/v1/finance', function ($group) {
-    $group->get('/transactions', [FinanceController::class, 'getTransactions']);
+    $group->get('/transactions', [FinanceController::class, 'getTransactions'])->add(AuthMiddleware::class);
     $group->post('/transactions', [FinanceController::class, 'createTransaction'])->add(AuthMiddleware::class);
     $group->put('/transactions/{id}/verify', [FinanceController::class, 'verifyTransaction'])->add(AuthMiddleware::class);
-    $group->get('/budgets', [FinanceController::class, 'getBudgets']);
+    $group->get('/budgets', [FinanceController::class, 'getBudgets'])->add(AuthMiddleware::class);
     $group->post('/budgets', [FinanceController::class, 'createBudget'])->add(AuthMiddleware::class);
-    $group->get('/iuran', [FinanceController::class, 'getIuran']);
+    $group->get('/iuran', [FinanceController::class, 'getIuran'])->add(AuthMiddleware::class);
     $group->post('/iuran', [FinanceController::class, 'createIuran'])->add(AuthMiddleware::class);
     $group->put('/iuran/{id}/pay', [FinanceController::class, 'payIuran'])->add(AuthMiddleware::class);
-    $group->get('/summary', [FinanceController::class, 'getFinancialSummary']);
+    $group->get('/summary', [FinanceController::class, 'getFinancialSummary'])->add(AuthMiddleware::class);
 });
 
 // Event routes (Acara & Kalender)
@@ -207,8 +207,8 @@ $app->group('/api/v1/communication', function ($group) {
 
 // Location routes (Perluasan Tempat)
 $app->group('/api/v1/locations', function ($group) {
-    $group->get('/rumah', [LocationController::class, 'index']);
-    $group->get('/rumah/{id}', [LocationController::class, 'show']);
+    $group->get('/rumah', [LocationController::class, 'index'])->add(AuthMiddleware::class);
+    $group->get('/rumah/{id}', [LocationController::class, 'show'])->add(AuthMiddleware::class);
     $group->post('/rumah', [LocationController::class, 'store'])->add(AuthMiddleware::class);
     $group->put('/rumah/{id}', [LocationController::class, 'update'])->add(AuthMiddleware::class);
     $group->delete('/rumah/{id}', [LocationController::class, 'destroy'])->add(AuthMiddleware::class);
@@ -216,8 +216,8 @@ $app->group('/api/v1/locations', function ($group) {
 
 // History & Cultural Preservation routes
 $app->group('/api/v1/history', function ($group) {
-    $group->get('/{type}/{id}', [HistoryController::class, 'getEntityHistory']);
-    $group->get('/timeline/{type}/{id}', [HistoryController::class, 'getEntityTimeline']);
+    $group->get('/{type}/{id}', [HistoryController::class, 'getEntityHistory'])->add(AuthMiddleware::class);
+    $group->get('/timeline/{type}/{id}', [HistoryController::class, 'getEntityTimeline'])->add(AuthMiddleware::class);
     $group->get('/oral-traditions', [HistoryController::class, 'getOralTraditions']);
     $group->post('/oral-traditions', [HistoryController::class, 'createOralTradition'])->add(AuthMiddleware::class);
     $group->get('/traditional-knowledge', [HistoryController::class, 'getTraditionalKnowledge']);

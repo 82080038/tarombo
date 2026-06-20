@@ -25,6 +25,36 @@ function getAuthHeaders() {
     return headers;
 }
 
+// Check if user is authenticated, show login prompt if not
+function requireAuth() {
+    if (!getAuthToken()) {
+        showLoginPrompt();
+        return false;
+    }
+    return true;
+}
+
+// Show login prompt overlay for unauthenticated users
+function showLoginPrompt() {
+    // Avoid duplicate prompts
+    if (document.getElementById('authPromptOverlay')) return;
+    const baseUrl = window.TAROMBO_BASE_URL || '/tarombo';
+    const overlay = document.createElement('div');
+    overlay.id = 'authPromptOverlay';
+    overlay.className = 'position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center';
+    overlay.style.cssText = 'background:rgba(0,0,0,0.5);z-index:9998;';
+    overlay.innerHTML = `
+        <div class="bg-white rounded-3 shadow-lg p-4 text-center" style="max-width:400px;">
+            <div class="mb-3" style="font-size:3rem;">🔒</div>
+            <h4 class="fw-bold mb-2">Login Diperlukan</h4>
+            <p class="text-muted mb-3">Anda harus login untuk melihat data ini.</p>
+            <a href="${baseUrl}/login" class="btn btn-primary px-4">Login Sekarang</a>
+            <button class="btn btn-link d-block mt-2 text-muted" onclick="document.getElementById('authPromptOverlay').remove()">Tutup</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
 // API Helper Functions
 const API = {
     // Auth: Login
@@ -115,13 +145,18 @@ const API = {
     // Get all persons
     getPersons: async function () {
         try {
-            const response = await fetch(`${API_BASE_URL}/persons`);
+            const response = await fetch(`${API_BASE_URL}/persons`, {
+                headers: getAuthHeaders()
+            });
+            if (response.status === 401) {
+                showLoginPrompt();
+                return [];
+            }
             if (!response.ok) throw new Error('Failed to fetch persons');
             const data = await response.json();
             return data.data;
         } catch (error) {
             console.error('Error fetching persons:', error);
-            Toast.error('Gagal memuat data anggota. Silakan refresh halaman.');
             return [];
         }
     },
@@ -129,7 +164,13 @@ const API = {
     // Get person by ID
     getPerson: async function (id) {
         try {
-            const response = await fetch(`${API_BASE_URL}/persons/${id}`);
+            const response = await fetch(`${API_BASE_URL}/persons/${id}`, {
+                headers: getAuthHeaders()
+            });
+            if (response.status === 401) {
+                showLoginPrompt();
+                return null;
+            }
             if (!response.ok) throw new Error('Failed to fetch person');
             const data = await response.json();
             return data.data;
@@ -204,7 +245,13 @@ const API = {
     // Calculate partuturan
     calculatePartuturan: async function (person1Id, person2Id) {
         try {
-            const response = await fetch(`${API_BASE_URL}/partuturan/calculate?from=${person1Id}&to=${person2Id}`);
+            const response = await fetch(`${API_BASE_URL}/partuturan/calculate?from=${person1Id}&to=${person2Id}`, {
+                headers: getAuthHeaders()
+            });
+            if (response.status === 401) {
+                showLoginPrompt();
+                return null;
+            }
             if (!response.ok) throw new Error('Failed to calculate partuturan');
             const data = await response.json();
             return data;

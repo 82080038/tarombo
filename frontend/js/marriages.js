@@ -21,7 +21,9 @@ async function loadMarriages(page = 1) {
         params.set('limit', 20);
         if (status) params.set('status', status);
 
-        const response = await fetch(`${API_BASE_URL}/marriages?${params.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/marriages?${params.toString()}`, {
+            headers: getAuthHeaders()
+        });
         const result = await response.json();
 
         if (!result.success) {
@@ -183,7 +185,9 @@ async function saveMarriage() {
 
 async function viewMarriage(id) {
     try {
-        const response = await fetch(`${API_BASE_URL}/marriages/${id}`);
+        const response = await fetch(`${API_BASE_URL}/marriages/${id}`, {
+            headers: getAuthHeaders()
+        });
         const result = await response.json();
 
         if (!result.success) {

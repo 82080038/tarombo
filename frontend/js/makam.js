@@ -4,13 +4,15 @@ let map;
 document.addEventListener('DOMContentLoaded', async function () {
     map = L.map('makamMap').setView([3.5952, 98.6721], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
-    
+
     loadMakamData();
 });
 
 async function loadMakamData() {
     try {
-        const response = await fetch(`${API_BASE_URL}/makam`);
+        const response = await fetch(`${API_BASE_URL}/makam`, {
+            headers: getAuthHeaders()
+        });
         const result = await response.json();
 
         if (!result.success) {
