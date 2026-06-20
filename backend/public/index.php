@@ -200,9 +200,9 @@ $app->group('/api/v1/communication', function ($group) {
     $group->get('/messages', [CommunicationController::class, 'getMessages'])->add(AuthMiddleware::class);
     $group->post('/messages', [CommunicationController::class, 'createMessage'])->add(AuthMiddleware::class);
     $group->get('/notifications', [CommunicationController::class, 'getNotifications'])->add(AuthMiddleware::class);
+    $group->get('/notifications/unread-count', [CommunicationController::class, 'getUnreadCount'])->add(AuthMiddleware::class);
     $group->put('/notifications/{id}/read', [CommunicationController::class, 'markNotificationRead'])->add(AuthMiddleware::class);
     $group->put('/notifications/mark-all-read', [CommunicationController::class, 'markAllNotificationsRead'])->add(AuthMiddleware::class);
-    $group->get('/notifications/unread-count', [CommunicationController::class, 'getUnreadCount'])->add(AuthMiddleware::class);
 });
 
 // Location routes (Perluasan Tempat)

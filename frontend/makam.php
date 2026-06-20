@@ -1,7 +1,7 @@
 <?php
 $pageTitle = 'Data Makam';
 $activePage = 'makam';
-$extraCss = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+$extraCss = 'leaflet.css';
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/menu.php';
 ?>
@@ -14,6 +14,6 @@ require_once __DIR__ . '/includes/menu.php';
 </div>
 
 <?php
-$extraJs = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js,' . TAROMBO_BASE_URL . '/js/makam.js';
+$extraJs = TAROMBO_BASE_URL . '/js/leaflet.js,' . TAROMBO_BASE_URL . '/js/makam.js';
 require_once __DIR__ . '/includes/footer.php';
 ?>

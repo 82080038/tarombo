@@ -84,7 +84,7 @@ function renderMarriages(marriages) {
 
 function renderPagination(pagination) {
     if (!pagination) return;
-    const el = document.getElementById('pagination');
+    const el = document.getElementById('marriagePagination');
     let html = `<span>Halaman ${pagination.page} dari ${pagination.total_pages} (${pagination.total} total)</span>`;
     html += '<div>';
     if (pagination.page > 1) {

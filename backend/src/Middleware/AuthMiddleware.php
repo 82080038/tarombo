@@ -52,8 +52,8 @@ class AuthMiddleware
     {
         $response = new \Slim\Psr7\Response();
         $response->getBody()->write(json_encode([
-            'error' => $message,
-            'code' => 'UNAUTHORIZED'
+            'success' => false,
+            'error' => ['code' => 'UNAUTHORIZED', 'message' => $message]
         ]));
         
         return $response

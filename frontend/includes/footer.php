@@ -18,6 +18,9 @@ $jsFiles = explode(',', $extraJs);
 foreach ($jsFiles as $jsFile):
     $jsFile = trim($jsFile);
     if (!empty($jsFile)):
+        if (!str_starts_with($jsFile, 'http') && !str_starts_with($jsFile, '/')) {
+            $jsFile = TAROMBO_BASE_URL . '/js/' . $jsFile;
+        }
 ?>
 <script src="<?= e($jsFile) ?>"></script>
 <?php
