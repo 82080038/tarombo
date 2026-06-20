@@ -2,8 +2,9 @@
 
 ## Sistem Silsilah Keluarga Batak Berbasis Web
 
-**Versi:** 1.0.0  
-**Status:** Development Ready
+**Versi:** 2.0.0  
+**Status:** Development Active  
+**Last Updated:** June 20, 2026
 
 ---
 
@@ -11,26 +12,35 @@
 
 ```
 tarombo/
-├── backend/           # PHP 8.x REST API
+├── backend/               # PHP 8.3 REST API (Slim 4 + Eloquent ORM)
 │   ├── src/
-│   │   ├── Controllers/
-│   │   ├── Models/
-│   │   ├── Services/
-│   │   └── Middleware/
-│   ├── config/
-│   ├── public/       # Entry point (index.php)
+│   │   ├── Controllers/   # 15 controllers (Auth, Person, Marriage, dll.)
+│   │   ├── Models/        # Eloquent models (Person, Marga, User, dll.)
+│   │   ├── Services/      # PartuturanService, AuditService, EmailService, GedcomService
+│   │   ├── Middleware/    # Auth, CORS, RateLimit, Admin
+│   │   └── Traits/        # ApiResponse trait
+│   ├── tests/             # PHPUnit (51 tests, 133 assertions)
+│   ├── public/index.php   # Entry point + route definitions
+│   ├── .env               # Environment config (COMMITTED untuk development)
 │   └── composer.json
-├── frontend/          # HTML + Bootstrap + jQuery
-│   ├── css/          # Custom CSS
-│   ├── js/           # JavaScript files
-│   ├── index.html    # Homepage
-│   ├── persons.html  # Persons list
-│   ├── person-detail.html
-│   ├── family-tree.html
-│   └── partuturan.html
-├── database/          # SQL migrations & seeds
-├── tests/             # Playwright E2E tests
-└── docs/              # 18 dokumentasi lengkap
+├── frontend/              # PHP templates + Bootstrap 5 + jQuery
+│   ├── includes/          # header.php, footer.php, menu.php, config.php
+│   ├── js/                # api.js, auth-nav.js, finance.js, login.js
+│   ├── *.php              # persons.php, family-tree.php, partuturan.php, dll.
+│   └── .htaccess
+├── database/
+│   ├── schema_updated.sql     # Full schema (38 tabel, InnoDB, utf8mb4)
+│   ├── tarombo_full_export.sql # Export database lengkap dengan data
+│   └── migrations/            # 012+ migration files
+├── tests/                 # Playwright E2E tests
+│   ├── e2e/               # 5 spec files
+│   └── playwright.config.ts
+├── docs/                  # 18+ dokumentasi lengkap
+├── .devin/workflows/      # Workflow untuk AI assistant
+├── .github/workflows/ci.yml # CI/CD
+├── ANALISIS_MENDALAM_APLIKASI.md  # Analisis 45 issue + status perbaikan
+├── DEVELOPER_GUIDE.md     # Panduan lengkap untuk developer baru
+└── README.md              # File ini
 ```
 
 ---
@@ -38,92 +48,104 @@ tarombo/
 ## 🚀 Quick Start
 
 ### Prerequisites
-- PHP 8.1+ with Composer
-- MySQL 8.0+ (XAMPP or native)
-- Node.js 18+ with npm
+- **PHP 8.3+** with Composer (XAMPP PHP 8.2 tidak cukup — gunakan system PHP atau update XAMPP)
+- **MariaDB 10.4+** (XAMPP) atau MySQL 8.0+
+- **Node.js 18+** with npm (untuk Playwright E2E)
+- **XAMPP** (Apache + MariaDB)
 - Modern web browser
 
-### 1. Setup Environment
+### 1. Clone & Install
 
 ```bash
 # Clone repository
+git clone <repo-url> /opt/lampp/htdocs/tarombo
 cd /opt/lampp/htdocs/tarombo
 
-# Run setup script
-chmod +x setup.sh
-./setup.sh
+# Install backend dependencies
+cd backend && composer install && cd ..
+
+# Install test dependencies
+cd tests && npm install && cd ..
 ```
 
-### 2. Manual Setup (Alternative)
+### 2. Database Setup
 
-**Backend:**
 ```bash
-cd backend
-composer install
-cp .env.example .env
-# Edit .env with your database credentials
-php -S localhost:8000 -t public/
+# Start XAMPP MySQL
+sudo /opt/lampp/lampp start
+
+# Create database
+mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS tarombo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+# Option A: Import full export (schema + data)
+mysql -u root -proot tarombo < database/tarombo_full_export.sql
+
+# Option B: Fresh schema only (no data)
+mysql -u root -proot tarombo < database/schema_updated.sql
+# Then run all migrations:
+for f in database/migrations/*.sql; do mysql -u root -proot tarombo < "$f"; done
 ```
 
-**Frontend:**
+### 3. Backend Configuration
+
+File `.env` sudah committed dengan konfigurasi default XAMPP:
+```
+DB_HOST=localhost
+DB_NAME=tarombo
+DB_USER=root
+DB_PASS=root
+DB_UNIX_SOCKET=/opt/lampp/var/mysql/mysql.sock
+JWT_SECRET=<already set>
+APP_ENV=development
+```
+
+Untuk produksi: ganti `JWT_SECRET` dengan `openssl rand -base64 32`, set `APP_ENV=production`.
+
+### 4. Run Application
+
 ```bash
-# Option 1: Use Apache (recommended for production)
-# Access via: http://localhost/tarombo/
+# Start backend API (port 8000)
+php -S localhost:8000 -t backend/public backend/public/index.php
 
-# Option 2: Use PHP built-in server
-php -S localhost:8080
+# Start Apache for frontend
+sudo /opt/lampp/lampp startapache
 
-# Option 3: Use Apache with XAMPP
-# Place project in /opt/lampp/htdocs/tarombo
-# Access via: http://localhost/tarombo/
+# Access frontend: http://localhost/tarombo/
+# API health: http://localhost:8000/health
 ```
 
-**Database:**
-```bash
-# Using MySQL with XAMPP
-mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/schema.sql
-mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/seeds.sql
-
-# Or import latest export
-mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/tarombo_export_*.sql
-```
+> **Penting:** Gunakan system PHP 8.3+ untuk backend, BUKAN XAMPP PHP 8.2 (composer.json requires >= 8.3)
 
 ---
 
-## 🧪 Testing dengan Playwright
+## 🧪 Testing
 
-### Setup Playwright
+### PHPUnit (Backend)
+```bash
+cd backend
+vendor/bin/phpunit --testsuite Unit          # 51 unit tests
+vendor/bin/phpunit --filter SecurityFixesTest # Security tests
+vendor/bin/phpunit --testsuite Integration     # Integration tests
+```
+
+### Playwright (E2E)
 ```bash
 cd tests
-npm install -D @playwright/test
-npx playwright install
+npm install              # Install dependencies
+npx playwright install   # Install browsers
+npx playwright test      # Run all E2E tests
+npx playwright test --headed  # With browser UI
+npx playwright test home.spec.ts  # Specific file
 ```
 
-### Run Tests
-```bash
-# Headless mode
-npx playwright test
-
-# Headed mode (untuk debugging)
-npx playwright test --headed
-
-# Specific test file
-npx playwright test person.spec.ts --headed
-
-# With UI mode
-npx playwright test --ui
+### Test Files
 ```
-
-### Test Structure
-```
-tests/
-├── e2e/
-│   ├── person.spec.ts      # Person CRUD tests
-│   ├── tree.spec.ts        # Family tree tests
-│   └── partuturan.spec.ts  # Partuturan calculation tests
-├── fixtures/
-│   └── test-data.json
-└── playwright.config.ts
+tests/e2e/
+├── home.spec.ts              # Homepage + API tests
+├── full-e2e.spec.ts          # Comprehensive E2E
+├── comprehensive.spec.ts     # Full feature test
+├── role-navigation.spec.ts   # RBAC navigation
+└── role-simulation.spec.ts   # RBAC access simulation
 ```
 
 ---
@@ -146,73 +168,77 @@ Semua dokumentasi tersedia di folder `docs/`:
 
 ## 🔧 API Endpoints
 
-### Persons
-```
-GET    /api/v1/persons           # List all persons
-GET    /api/v1/persons/{id}      # Get person detail
-POST   /api/v1/persons           # Create person (auth required)
-PUT    /api/v1/persons/{id}      # Update person (auth required)
-DELETE /api/v1/persons/{id}      # Delete person (auth required)
+**Base URL:** `http://localhost:8000/api/v1`
+
+**Response format (konsisten di semua endpoint):**
+```json
+// Success: {"success": true, "data": {...}, "meta": {...}}
+// Error:   {"success": false, "error": {"code": "ERROR_CODE", "message": "..."}}
 ```
 
-### Marga
-```
-GET /api/v1/marga                # List all marga
-GET /api/v1/marga/{id}           # Get marga detail
-```
+### Auth
+| Method | Path | Auth | Deskripsi |
+|--------|------|------|-----------|
+| POST | `/auth/login` | No | Login → JWT |
+| POST | `/auth/register` | No | Register |
+| POST | `/auth/quick-login` | No | Quick login (localhost only) |
+| GET | `/auth/me` | JWT | Info user |
+| POST | `/auth/logout` | JWT | Logout |
+| POST | `/auth/forgot-password` | No | Request reset |
+| POST | `/auth/reset-password` | No | Reset password |
+| POST | `/auth/verify-email` | No | Verify email |
 
-### Partuturan
-```
-GET /api/v1/partuturan/calculate?from={id}&to={id}
-```
+### Persons, Marga, Marriage, Partuturan
+| Method | Path | Auth | Deskripsi |
+|--------|------|------|-----------|
+| GET | `/persons` | No | List (pagination) |
+| GET | `/persons/{id}` | No | Detail + relationships |
+| POST/PUT/DELETE | `/persons/{id}` | JWT | CRUD |
+| GET | `/marga` | No | List marga |
+| GET | `/marga/{id}/can-marry/{target_id}` | No | Check marriage |
+| GET/POST/PUT/DELETE | `/marriages` | JWT | Marriage CRUD |
+| GET | `/partuturan/calculate?from={id}&to={id}` | No | Hitung hubungan |
 
-### Harta Warisan (Assets)
-```
-GET    /api/v1/assets            # List all assets
-GET    /api/v1/assets/{id}       # Get asset detail
-POST   /api/v1/assets            # Create asset (auth required)
-PUT    /api/v1/assets/{id}       # Update asset (auth required)
-DELETE /api/v1/assets/{id}       # Delete asset (auth required)
-POST   /api/v1/assets/{id}/transfer   # Transfer ownership (auth required)
-GET    /api/v1/assets/{id}/inheritance  # Get inheritance history
-```
-
-### Keuangan Punguan (Finance)
-```
-GET    /api/v1/finance/transactions   # List transactions
-POST   /api/v1/finance/transactions   # Create transaction (auth required)
-PUT    /api/v1/finance/transactions/{id}/verify  # Verify transaction (auth required)
-GET    /api/v1/finance/budgets        # List budgets
-POST   /api/v1/finance/budgets        # Create budget (auth required)
-GET    /api/v1/finance/iuran          # List iuran
-POST   /api/v1/finance/iuran          # Create iuran (auth required)
-PUT    /api/v1/finance/iuran/{id}/pay  # Pay iuran (auth required)
-GET    /api/v1/finance/summary       # Get financial summary
-```
+### Lainnya
+- `/ceremonies` — Acara adat
+- `/punguan` — Punguan & iuran
+- `/documents` — Dokumen
+- `/makam` — Makam
+- `/geo/*` — Geografis/peta
+- `/assets` — Harta warisan
+- `/finance/*` — Keuangan
+- `/events` — Events
+- `/heritage` — Tradisi & stories
+- `/communication` — Announcements & messages
+- `/admin/*` — Admin (JWT + admin role)
+- `/backup/*` — Backup/restore (admin)
+- `/reports/*` — Export PDF/Excel/CSV
+- `/gedcom/*` — GEDCOM import/export (JWT)
 
 ---
 
 ## 🏗️ Tech Stack
 
 ### Backend
-- **PHP 8.1+** dengan Slim Framework
-- **Eloquent ORM** untuk database
-- **JWT** untuk authentication
-- **Neo4j** untuk graph relationships (optional)
+- **PHP 8.3+** dengan Slim Framework 4
+- **Eloquent ORM** (Illuminate Database 10) untuk database
+- **JWT** (firebase/php-jwt) untuk authentication
+- **PhpSpreadsheet** untuk Excel export
+- **mPDF** untuk PDF export
 
-| BR-AST-001 | Asset inheritance tracking | ✅ Implemented |
-| BR-FIN-001 | Financial transaction verification | ✅ Implemented |
-| BR-TAN-001 | Customary land management | ✅ Implemented |
 ### Frontend
-- **HTML 5** untuk struktur
-- **Bootstrap 5.3** untuk styling
-- **jQuery 3.7.0** untuk DOM manipulation dan AJAX
-- **D3.js** untuk family tree visualization (optional)
+- **PHP templates** dengan Bootstrap 5.3
+- **jQuery 3.7** untuk AJAX
+- **Leaflet.js** untuk peta
+
+### Database
+- **MariaDB 10.4** (XAMPP) — 38 tabel, 25+ FK constraints, 14+ indexes
+- **InnoDB** engine, **utf8mb4_unicode_ci** collation
 
 ### Testing
-- **Playwright** untuk E2E testing
-- **PHPUnit** untuk backend unit tests
-- **Vitest** untuk frontend unit tests
+- **PHPUnit 10** — 51 unit tests, 133 assertions
+- **Playwright** — E2E tests
+- **GitHub Actions** — CI/CD
 
 ---
 
@@ -271,48 +297,54 @@ npx playwright test           # E2E
 
 ## 🐛 Troubleshooting
 
-### Backend Issues
+### Backend: "Composer detected issues — PHP version"
+XAMPP PHP 8.2 tidak cukup. Gunakan system PHP 8.3+:
 ```bash
-# Check logs
-tail -f backend/logs/error.log
-
-# Reset database
-docker-compose down -v
-docker-compose up -d
+php -v  # Pastikan 8.3+
+php -S localhost:8000 -t backend/public backend/public/index.php
 ```
 
-### Frontend Issues
+### Database: Import export
 ```bash
-# Clear cache
-rm -rf frontend/node_modules
-rm frontend/package-lock.json
-cd frontend && npm install
+# Import full export (schema + data)
+mysql -u root -proot tarombo < database/tarombo_full_export.sql
 
-# Check types
-npx tsc --noEmit
+# Export ulang
+mysqldump -u root -proot tarombo --routines --triggers > database/tarombo_full_export.sql
 ```
 
-### Database Issues
+### Frontend: Apache tidak jalan
 ```bash
-# Check connection with XAMPP
-mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock
+sudo /opt/lampp/lampp startapache
+# Akses: http://localhost/tarombo/
+```
 
-# Reset data
-mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/schema.sql
-mysql -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo < database/seeds.sql
-
-# Export current database
-mysqldump -u root -p --socket=/opt/lampp/var/mysql/mysql.sock tarombo > database/tarombo_export_$(date +%Y%m%d_%H%M%S).sql
+### Test: Playwright browser error
+```bash
+cd tests && npx playwright install --force chromium
 ```
 
 ---
 
+## 📖 Dokumentasi Penting
+
+| File | Deskripsi |
+|------|-----------|
+| `DEVELOPER_GUIDE.md` | Panduan lengkap setup, arsitektur, API, testing |
+| `ANALISIS_MENDALAM_APLIKASI.md` | Analisis 45 issue + status perbaikan (✅/⚠️) |
+| `.devin/workflows/setup.md` | Workflow setup untuk AI assistant |
+| `docs/BUSINESS_RULE.md` | 100+ aturan bisnis adat Batak |
+| `docs/API_SPECIFICATION.md` | REST API specification |
+| `docs/DATABASE_DESIGN.md` | Database design & ERD |
+| `docs/IMPLEMENTATION_GUIDE.md` | Panduan implementasi |
+
 ## 🤝 Contributing
 
-1. Baca dokumentasi di folder `docs/`
-2. Follow [IMPLEMENTATION_GUIDE.md](docs/IMPLEMENTATION_GUIDE.md)
-3. Pastikan test pass sebelum commit
-4. Request review dari Tetua untuk fitur adat
+1. Baca `DEVELOPER_GUIDE.md` untuk memahami arsitektur
+2. Baca `ANALISIS_MENDALAM_APLIKASI.md` untuk status current
+3. Pastikan `vendor/bin/phpunit` pass sebelum commit
+4. Jalankan `npx playwright test` untuk E2E
+5. Commit dengan format: `feat:` / `fix:` / `docs:` / `refactor:`
 
 ---
 

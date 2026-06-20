@@ -7,19 +7,19 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Role-Based Navigation', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8081/');
+    await page.goto('/');
     await page.evaluate(() => localStorage.clear());
   });
 
   test('Admin - Full Navigation', async ({ page }) => {
     console.log('=== ADMIN NAVIGATION TEST ===');
     
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.click('button:has-text("Admin")');
     await page.waitForTimeout(2000);
     
     // Navigate to homepage to check navigation
-    await page.goto('http://localhost:8081/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     
     // Open dropdown to check admin menu
@@ -52,12 +52,12 @@ test.describe('Role-Based Navigation', () => {
   test('Punguan Admin - Admin Menu Visible', async ({ page }) => {
     console.log('=== PUNGUAN ADMIN NAVIGATION TEST ===');
     
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.click('button:has-text("Punguan Admin")');
     await page.waitForTimeout(2000);
     
     // Navigate to homepage to check navigation
-    await page.goto('http://localhost:8081/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     
     // Open dropdown to check admin menu
@@ -89,7 +89,7 @@ test.describe('Role-Based Navigation', () => {
   test('Verified User - No Admin Menu', async ({ page }) => {
     console.log('=== VERIFIED USER NAVIGATION TEST ===');
     
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.click('button:has-text("Verified")');
     await page.waitForTimeout(2000);
     
@@ -115,7 +115,7 @@ test.describe('Role-Based Navigation', () => {
   test('Regular User - No Admin Menu', async ({ page }) => {
     console.log('=== REGULAR USER NAVIGATION TEST ===');
     
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.click('button:has-text("User")');
     await page.waitForTimeout(2000);
     
@@ -137,7 +137,7 @@ test.describe('Role-Based Navigation', () => {
   test('Guest - No Admin Menu', async ({ page }) => {
     console.log('=== GUEST NAVIGATION TEST ===');
     
-    await page.goto('http://localhost:8081/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     
     // Open dropdown to check admin menu

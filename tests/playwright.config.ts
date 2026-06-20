@@ -8,19 +8,15 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: [['html', { open: 'never' }]],
   use: {
-    baseURL: 'http://localhost:8081/',
+    baseURL: 'http://localhost/tarombo/',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     // Enable console and network monitoring
     ignoreHTTPSErrors: true,
   },
-  // Use different port for backend API
-  webServer: {
-    command: 'cd /opt/lampp/htdocs/tarombo/backend/public && php -S localhost:9000',
-    port: 9000,
-    timeout: 120000,
-  },
+  // Frontend served by Apache on port 80, backend on port 8000
+  // No webServer needed — Apache already running via XAMPP
   projects: [
     {
       name: 'chromium',

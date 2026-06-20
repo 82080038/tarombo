@@ -8,7 +8,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Role-Based Access Simulation', () => {
   test.beforeEach(async ({ page }) => {
     // Clear localStorage before each test
-    await page.goto('http://localhost:8081/');
+    await page.goto('/');
     await page.evaluate(() => localStorage.clear());
   });
 
@@ -16,7 +16,7 @@ test.describe('Role-Based Access Simulation', () => {
     console.log('=== ADMIN SIMULATION START ===');
     
     // Navigate to login page
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.waitForLoadState('networkidle');
     
     // Quick login as admin
@@ -29,7 +29,7 @@ test.describe('Role-Based Access Simulation', () => {
     console.log('✅ Admin logged in successfully');
     
     // Navigate to Persons page
-    await page.goto('http://localhost:8081/persons');
+    await page.goto('/persons');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu');
     console.log('✅ Admin can access Persons page');
@@ -44,7 +44,7 @@ test.describe('Role-Based Access Simulation', () => {
     }
     
     // Logout
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.evaluate(() => localStorage.removeItem('tarombo_token'));
     console.log('✅ Admin logout successful');
     
@@ -55,11 +55,11 @@ test.describe('Role-Based Access Simulation', () => {
     console.log('=== VERIFIED USER SIMULATION START ===');
     
     // Navigate to login page
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     
     // Quick login as user
     await page.click('button:has-text("User")');
-    await page.waitForURL('http://localhost:8081/');
+    await page.waitForURL('/');
     
     // Verify user is logged in
     const token = await page.evaluate(() => localStorage.getItem('tarombo_token'));
@@ -67,7 +67,7 @@ test.describe('Role-Based Access Simulation', () => {
     console.log('✅ Verified user logged in successfully');
     
     // Navigate to Persons page
-    await page.goto('http://localhost:8081/persons');
+    await page.goto('/persons');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu');
     console.log('✅ Verified user can access Persons page');
@@ -81,7 +81,7 @@ test.describe('Role-Based Access Simulation', () => {
     await page.click('.btn-close');
     
     // Try to access Admin Dashboard (should be restricted)
-    await page.goto('http://localhost:8081/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
     
     // Check if access is denied or error shown
@@ -93,7 +93,7 @@ test.describe('Role-Based Access Simulation', () => {
     }
     
     // Logout
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.evaluate(() => localStorage.removeItem('tarombo_token'));
     console.log('✅ Verified user logout');
     
@@ -104,13 +104,13 @@ test.describe('Role-Based Access Simulation', () => {
     console.log('=== GUEST USER SIMULATION START ===');
     
     // Navigate to homepage without login
-    await page.goto('http://localhost:8081/');
+    await page.goto('/');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Selamat Datang');
     console.log('✅ Guest can access homepage');
     
     // Try to access Persons page (should be read-only or require login)
-    await page.goto('http://localhost:8081/persons');
+    await page.goto('/persons');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Daftar Dongan Tubu');
     console.log('✅ Guest can view Persons page');
@@ -125,7 +125,7 @@ test.describe('Role-Based Access Simulation', () => {
     }
     
     // Try to access Admin Dashboard (should be restricted)
-    await page.goto('http://localhost:8081/admin');
+    await page.goto('/admin');
     await page.waitForLoadState('networkidle');
     
     const pageContent = await page.textContent('body');
@@ -136,19 +136,19 @@ test.describe('Role-Based Access Simulation', () => {
     }
     
     // Try to access Family Tree
-    await page.goto('http://localhost:8081/family-tree');
+    await page.goto('/family-tree');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Pohon Tarombo');
     console.log('✅ Guest can access Family Tree');
     
     // Try to access Partuturan
-    await page.goto('http://localhost:8081/partuturan');
+    await page.goto('/partuturan');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Partuturan');
     console.log('✅ Guest can access Partuturan');
     
     // Navigate to login page
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.waitForLoadState('networkidle');
     await expect(page.locator('.card-header')).toContainText('Login');
     console.log('✅ Guest can access login page');
@@ -160,7 +160,7 @@ test.describe('Role-Based Access Simulation', () => {
     console.log('=== SECURITY CHECK START ===');
     
     // Test quick login is available in development
-    await page.goto('http://localhost:8081/login');
+    await page.goto('/login');
     await page.waitForLoadState('networkidle');
     
     // Test quick login functionality

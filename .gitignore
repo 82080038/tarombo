@@ -1,49 +1,27 @@
-# Dependencies
-node_modules/
-vendor/
-.pnp
-.pnp.js
+# === DEVELOPMENT MODE — minimal gitignore ===
+# .env, test-results, database exports, dll di-commit untuk memudahkan development di komputer lain
+# vendor/ dan node_modules/ tetap di-ignore karena bisa di-regenerate dengan composer install & npm install
 
-# Testing
-coverage/
+# Regenerable dependencies
+backend/vendor/
+tests/node_modules/
+
+# Regenerable test output
+tests/playwright-report/
 test-results/
-playwright-report/
-playwright/.cache/
+tests/test-results/
 
-# Production
-dist/
-build/
-*.log
+# OS files only
+.DS_Store
+Thumbs.db
 
-# Environment
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# IDE
-.vscode/
-.idea/
+# Editor swap files
 *.swp
 *.swo
 *~
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Database
-*.sql.backup
-database/*.sql.backup
-
-# Logs
-logs/
-*.log
-backend/logs/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
+# PHPUnit cache (regenerable)
 backend/.phpunit.cache/
+
+# Playwright cache (regenerable)
+playwright/.cache/
